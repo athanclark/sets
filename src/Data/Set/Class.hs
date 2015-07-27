@@ -19,6 +19,7 @@ import qualified Data.IntMap as IntMap
 import Data.Hashable (Hashable)
 import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Lazy as HashMap
+import qualified Data.SetWith as SetWith
 
 
 class HasUnion s where
@@ -39,8 +40,8 @@ class HasSingletonWith s k a where
 class HasEmpty s where
   empty :: s
 
-class HasEmptyWith s k a where
-  emptyWith :: k -> s a
+class HasEmptyWith s k where
+  emptyWith :: k -> s
 
 -- Instances
 
@@ -146,3 +147,19 @@ instance Hashable k => HasSingletonWith (HashMap.HashMap k a) k a where
 
 instance HasEmpty (HashMap.HashMap k a) where
   empty = HashMap.empty
+
+-- Data.SetWith
+instance Ord k => HasUnion (SetWith.SetWith k a) where
+  union = SetWith.union
+
+instance Ord k => HasDifference (SetWith.SetWith k a) where
+  difference = SetWith.difference
+
+instance Ord k => HasIntersection (SetWith.SetWith k a) where
+  intersection = SetWith.intersection
+
+instance Ord k => HasSingletonWith (SetWith.SetWith k a) (a -> k) a where
+  singletonWith = SetWith.singleton
+
+instance HasEmptyWith (SetWith.SetWith k a) (a -> k) where
+  emptyWith = SetWith.empty

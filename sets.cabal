@@ -18,6 +18,7 @@ Library
                       , containers
                       , unordered-containers
                       , hashable
+                      , set-with
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0
