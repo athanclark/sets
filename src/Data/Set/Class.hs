@@ -12,6 +12,7 @@ module Data.Set.Class where
 
 import Prelude (Ord)
 import qualified Data.Set as Set
+import qualified Data.Map.Lazy as MapLazy
 
 
 class HasUnion s a where
@@ -26,8 +27,14 @@ class HasIntersection s a where
 class HasSingleton s a where
   singleton :: a -> s a
 
+class HasSingletonWith s k a where
+  singletonWith :: k -> a -> s a
+
 class HasEmpty s a where
   empty :: s a
+
+class HasEmptyWith s k a where
+  emptyWith :: k -> s a
 
 -- Instances
 
@@ -46,3 +53,19 @@ instance HasSingleton Set.Set a where
 
 instance HasEmpty Set.Set a where
   empty = Set.empty
+
+-- Data.Map.Lazy
+instance Ord k => HasUnion (MapLazy.Map k) a where
+  union = MapLazy.union
+
+instance Ord k => HasDifference (MapLazy.Map k) a where
+  difference = MapLazy.difference
+
+instance Ord k => HasIntersection (MapLazy.Map k) a where
+  intersection = MapLazy.intersection
+
+instance HasSingletonWith (MapLazy.Map k) k a where
+  singletonWith = MapLazy.singleton
+
+instance HasEmpty (MapLazy.Map k) a where
+  empty = MapLazy.empty
