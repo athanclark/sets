@@ -12,7 +12,8 @@ module Data.Set.Class where
 
 import Prelude (Ord)
 import qualified Data.Set as Set
-import qualified Data.Map.Lazy as MapLazy
+import qualified Data.Map as Map
+import qualified Data.Sequence as Seq
 
 
 class HasUnion s a where
@@ -54,18 +55,25 @@ instance HasSingleton Set.Set a where
 instance HasEmpty Set.Set a where
   empty = Set.empty
 
--- Data.Map.Lazy
-instance Ord k => HasUnion (MapLazy.Map k) a where
-  union = MapLazy.union
+-- Data.Map
+instance Ord k => HasUnion (Map.Map k) a where
+  union = Map.union
 
-instance Ord k => HasDifference (MapLazy.Map k) a where
-  difference = MapLazy.difference
+instance Ord k => HasDifference (Map.Map k) a where
+  difference = Map.difference
 
-instance Ord k => HasIntersection (MapLazy.Map k) a where
-  intersection = MapLazy.intersection
+instance Ord k => HasIntersection (Map.Map k) a where
+  intersection = Map.intersection
 
-instance HasSingletonWith (MapLazy.Map k) k a where
-  singletonWith = MapLazy.singleton
+instance HasSingletonWith (Map.Map k) k a where
+  singletonWith = Map.singleton
 
-instance HasEmpty (MapLazy.Map k) a where
-  empty = MapLazy.empty
+instance HasEmpty (Map.Map k) a where
+  empty = Map.empty
+
+-- Data.Sequence
+instance HasSingleton Seq.Seq a where
+  singleton = Seq.singleton
+
+instance HasEmpty Seq.Seq a where
+  empty = Seq.empty
