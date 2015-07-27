@@ -17,6 +17,7 @@ Library
   Build-Depends:        base >= 4.6 && < 5
                       , containers
                       , unordered-containers
+                      , hashable
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0

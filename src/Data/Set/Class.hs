@@ -10,11 +10,15 @@
 
 module Data.Set.Class where
 
-import Prelude (Ord)
+import Prelude (Eq, Ord)
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.Sequence as Seq
 import qualified Data.IntSet as IntSet
+import qualified Data.IntMap as IntMap
+import Data.Hashable (Hashable)
+import qualified Data.HashSet as HashSet
+import qualified Data.HashMap.Lazy as HashMap
 
 
 class HasUnion s where
@@ -94,3 +98,51 @@ instance HasSingleton IntSet.IntSet IntSet.Key where
 
 instance HasEmpty IntSet.IntSet where
   empty = IntSet.empty
+
+-- Data.IntMap
+instance HasUnion (IntMap.IntMap a) where
+  union = IntMap.union
+
+instance HasDifference (IntMap.IntMap a) where
+  difference = IntMap.difference
+
+instance HasIntersection (IntMap.IntMap a) where
+  intersection = IntMap.intersection
+
+instance HasSingletonWith (IntMap.IntMap a) IntMap.Key a where
+  singletonWith = IntMap.singleton
+
+instance HasEmpty (IntMap.IntMap a) where
+  empty = IntMap.empty
+
+-- Data.HashSet
+instance (Hashable a, Eq a) => HasUnion (HashSet.HashSet a) where
+  union = HashSet.union
+
+instance (Hashable a, Eq a) => HasDifference (HashSet.HashSet a) where
+  difference = HashSet.difference
+
+instance (Hashable a, Eq a) => HasIntersection (HashSet.HashSet a) where
+  intersection = HashSet.intersection
+
+instance Hashable a => HasSingleton (HashSet.HashSet a) a where
+  singleton = HashSet.singleton
+
+instance HasEmpty (HashSet.HashSet a) where
+  empty = HashSet.empty
+
+-- Data.HashMap
+instance (Hashable k, Eq k) => HasUnion (HashMap.HashMap k a) where
+  union = HashMap.union
+
+instance (Hashable k, Eq k) => HasDifference (HashMap.HashMap k a) where
+  difference = HashMap.difference
+
+instance (Hashable k, Eq k) => HasIntersection (HashMap.HashMap k a) where
+  intersection = HashMap.intersection
+
+instance Hashable k => HasSingletonWith (HashMap.HashMap k a) k a where
+  singletonWith = HashMap.singleton
+
+instance HasEmpty (HashMap.HashMap k a) where
+  empty = HashMap.empty
