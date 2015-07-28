@@ -13,6 +13,7 @@ module Data.Set.Class where
 import Prelude (Eq, Ord)
 import qualified Data.Set as Set
 import qualified Data.Map as Map
+import Data.List as List
 import qualified Data.Sequence as Seq
 import qualified Data.IntSet as IntSet
 import qualified Data.IntMap as IntMap
@@ -76,6 +77,13 @@ instance HasSingletonWith (Map.Map k a) k a where
 
 instance HasEmpty (Map.Map k a) where
   empty = Map.empty
+
+-- Data.List
+instance HasSingleton [a] a where
+  singleton = (:[])
+
+instance HasEmpty [a] where
+  empty = []
 
 -- Data.Sequence
 instance HasSingleton (Seq.Seq a) a where
