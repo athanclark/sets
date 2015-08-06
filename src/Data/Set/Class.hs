@@ -23,6 +23,7 @@ import qualified Data.HashMap.Lazy as HashMap
 import qualified Data.SetWith as SetWith
 
 
+-- For @unions@, use @Data.Foldable@ or @Data.Foldable1@.
 class HasUnion s where
   union :: s -> s -> s
 
