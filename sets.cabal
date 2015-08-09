@@ -21,6 +21,7 @@ Library
                       , unordered-containers
                       , hashable
                       , set-with
+                      , commutative
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0

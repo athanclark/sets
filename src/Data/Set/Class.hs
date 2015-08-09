@@ -10,22 +10,30 @@
 
 module Data.Set.Class where
 
-import Prelude (Eq, Ord)
+import Prelude (Eq, Ord, Int, Bool)
+import Data.Foldable as Fold
+import Data.Monoid as Monoid
+
 import qualified Data.Set as Set
 import qualified Data.Map as Map
-import Data.List as List
 import qualified Data.Sequence as Seq
 import qualified Data.IntSet as IntSet
 import qualified Data.IntMap as IntMap
+import qualified Data.List as List
 import Data.Hashable (Hashable)
 import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Lazy as HashMap
 import qualified Data.SetWith as SetWith
 
 
--- For @unions@, use @Data.Foldable@ or @Data.Foldable1@.
 class HasUnion s where
   union :: s -> s -> s
+
+unions :: ( Fold.Foldable f
+          , HasUnion s
+          , HasEmpty s
+          ) => f s -> s
+unions = foldr Data.Set.Class.union empty
 
 class HasDifference s where
   difference :: s -> s -> s
@@ -45,6 +53,15 @@ class HasEmpty s where
 class HasEmptyWith s k where
   emptyWith :: k -> s
 
+class HasSize s where
+  size :: s -> Int
+
+class CanBeSubset s where
+  isSubsetOf :: s -> s -> Bool
+
+class CanBeProperSubset s where
+  isProperSubsetOf :: s -> s -> Bool
+
 -- Instances
 
 -- Data.Set
@@ -63,6 +80,16 @@ instance HasSingleton (Set.Set a) a where
 instance HasEmpty (Set.Set a) where
   empty = Set.empty
 
+instance HasSize (Set.Set a) where
+  size = Set.size
+
+instance Ord a => CanBeSubset (Set.Set a) where
+  isSubsetOf = Set.isSubsetOf
+
+instance Ord a => CanBeProperSubset (Set.Set a) where
+  isProperSubsetOf = Set.isProperSubsetOf
+
+
 -- Data.Map
 instance Ord k => HasUnion (Map.Map k a) where
   union = Map.union
@@ -79,6 +106,16 @@ instance HasSingletonWith (Map.Map k a) k a where
 instance HasEmpty (Map.Map k a) where
   empty = Map.empty
 
+instance HasSize (Map.Map k a) where
+  size = Map.size
+
+instance (Eq k, Ord k, Eq a) => CanBeSubset (Map.Map k a) where
+  isSubsetOf = Map.isSubmapOf
+
+instance (Eq k, Ord k, Eq a) => CanBeProperSubset (Map.Map k a) where
+  isProperSubsetOf = Map.isProperSubmapOf
+
+
 -- Data.List
 instance HasSingleton [a] a where
   singleton = (:[])
@@ -86,12 +123,18 @@ instance HasSingleton [a] a where
 instance HasEmpty [a] where
   empty = []
 
+instance HasSize [a] where
+  size = List.length
+
 -- Data.Sequence
 instance HasSingleton (Seq.Seq a) a where
   singleton = Seq.singleton
 
 instance HasEmpty (Seq.Seq a) where
   empty = Seq.empty
+
+instance HasSize (Seq.Seq a) where
+  size = Seq.length
 
 -- Data.IntSet
 instance HasUnion IntSet.IntSet where
@@ -109,6 +152,16 @@ instance HasSingleton IntSet.IntSet IntSet.Key where
 instance HasEmpty IntSet.IntSet where
   empty = IntSet.empty
 
+instance HasSize IntSet.IntSet where
+  size = IntSet.size
+
+instance CanBeSubset IntSet.IntSet where
+  isSubsetOf = IntSet.isSubsetOf
+
+instance CanBeProperSubset IntSet.IntSet where
+  isProperSubsetOf = IntSet.isProperSubsetOf
+
+
 -- Data.IntMap
 instance HasUnion (IntMap.IntMap a) where
   union = IntMap.union
@@ -124,6 +177,16 @@ instance HasSingletonWith (IntMap.IntMap a) IntMap.Key a where
 
 instance HasEmpty (IntMap.IntMap a) where
   empty = IntMap.empty
+
+instance HasSize (IntMap.IntMap a) where
+  size = IntMap.size
+
+instance Eq a => CanBeSubset (IntMap.IntMap a) where
+  isSubsetOf = IntMap.isSubmapOf
+
+instance Eq a => CanBeProperSubset (IntMap.IntMap a) where
+  isProperSubsetOf = IntMap.isProperSubmapOf
+
 
 -- Data.HashSet
 instance (Hashable a, Eq a) => HasUnion (HashSet.HashSet a) where
@@ -141,6 +204,10 @@ instance Hashable a => HasSingleton (HashSet.HashSet a) a where
 instance HasEmpty (HashSet.HashSet a) where
   empty = HashSet.empty
 
+instance HasSize (HashSet.HashSet a) where
+  size = HashSet.size
+
+
 -- Data.HashMap
 instance (Hashable k, Eq k) => HasUnion (HashMap.HashMap k a) where
   union = HashMap.union
@@ -157,6 +224,9 @@ instance Hashable k => HasSingletonWith (HashMap.HashMap k a) k a where
 instance HasEmpty (HashMap.HashMap k a) where
   empty = HashMap.empty
 
+instance HasSize (HashMap.HashMap k a) where
+  size = HashMap.size
+
 -- Data.SetWith
 instance Ord k => HasUnion (SetWith.SetWith k a) where
   union = SetWith.union
@@ -172,3 +242,12 @@ instance Ord k => HasSingletonWith (SetWith.SetWith k a) (a -> k) a where
 
 instance HasEmptyWith (SetWith.SetWith k a) (a -> k) where
   emptyWith = SetWith.empty
+
+instance HasSize (SetWith.SetWith k a) where
+  size = SetWith.size
+
+instance (Ord k, Eq a) => CanBeSubset (SetWith.SetWith k a) where
+  isSubsetOf = SetWith.isSubsetOf
+
+instance (Ord k, Eq a) => CanBeProperSubset (SetWith.SetWith k a) where
+  isProperSubsetOf = SetWith.isProperSubsetOf

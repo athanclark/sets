@@ -18,7 +18,7 @@ import Data.Maybe (fromJust, isJust, mapMaybe)
 newtype UUSet a = UUSet {unUUSet :: [a]}
   deriving (Functor)
 
-instance Mergeable (UUSet a) where
+instance Mergeable UUSet where
   mergeMap f (UUSet xs) = mergeMap f xs
 
 -- * Operators
@@ -48,7 +48,7 @@ notMember x = not . member x
 lookup :: Eq a => a -> UUSet a -> Maybe a
 lookup x (UUSet xs) = lookup' x xs
   where
-    lookup' x [] = Nothing
+    lookup' _ [] = Nothing
     lookup' x (y:ys) | x == y    = Just y
                      | otherwise = lookup' x ys
 
