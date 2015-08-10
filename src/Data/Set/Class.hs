@@ -29,6 +29,7 @@ import qualified Data.Set.Ordered.Many as OM
 import Data.Discrimination as Disc
 import qualified Data.Set.Unordered.Many as UM
 import qualified Data.Set.Unordered.Unique as UU
+import qualified Data.Set.Ordered.Unique.Finite as OUF
 
 
 class HasUnion s where
@@ -69,6 +70,9 @@ class HasEmptyWith s k where
 
 class HasTotal s where
   total :: s
+
+class HasTotalWith s k where
+  totalWith :: k -> s
 
 class HasSize s where
   size :: s -> Int
@@ -369,3 +373,32 @@ instance Eq a => CanBeSubset (UU.UUSet a) where
 
 instance Eq a => CanBeProperSubset (UU.UUSet a) where
   isProperSubsetOf = UU.isProperSubsetOf
+
+
+-- Data.Set.Ordered.Unique.Finite
+instance Ord a => HasUnion (OUF.FiniteSet a) where
+  union = OUF.union
+
+instance Ord a => HasDifference (OUF.FiniteSet a) where
+  difference = OUF.difference
+
+instance Ord a => HasIntersection (OUF.FiniteSet a) where
+  intersection = OUF.intersection
+
+instance HasSingletonWith (OUF.FiniteSet a) (Set.Set a) a where
+  singletonWith = OUF.singleton
+
+instance HasEmptyWith (OUF.FiniteSet a) (Set.Set a) where
+  emptyWith = OUF.empty
+
+instance HasTotalWith (OUF.FiniteSet a) (OUF.FiniteSet a) where
+  totalWith (OUF.FiniteSet (t,_)) = OUF.FiniteSet (t,t)
+
+instance HasSize (OUF.FiniteSet a) where
+  size = OUF.size
+
+instance Ord a => CanBeSubset (OUF.FiniteSet a) where
+  isSubsetOf = OUF.isSubsetOf
+
+instance Ord a => CanBeProperSubset (OUF.FiniteSet a) where
+  isProperSubsetOf = OUF.isProperSubsetOf

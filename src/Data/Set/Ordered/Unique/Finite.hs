@@ -46,6 +46,9 @@ isProperSubsetOf (FiniteSet (t1,xs)) (FiniteSet (t2,ys)) =
 empty :: Set.Set a -> FiniteSet a
 empty t = FiniteSet (t, Set.empty)
 
+total :: FiniteSet a -> Set.Set a
+total (FiniteSet (t,_)) = t
+
 -- | /O(1)/
 singleton :: Set.Set a -> a -> FiniteSet a
 singleton t x = FiniteSet (t, Set.singleton x)
