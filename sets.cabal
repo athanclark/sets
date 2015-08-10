@@ -15,7 +15,6 @@ Library
   GHC-Options:          -Wall
   Exposed-Modules:      Data.Set.Class
                         Data.Set.Unordered.Unique
-                        Data.Set.Unordered.Many
   Build-Depends:        base >= 4.6 && < 5
                       , containers
                       , unordered-containers

@@ -41,6 +41,9 @@ class HasDifference s where
 class HasIntersection s where
   intersection :: s -> s -> s
 
+class HasComplement s where
+  complement :: s -> s
+
 class HasSingleton s a where
   singleton :: a -> s
 
@@ -61,6 +64,7 @@ class CanBeSubset s where
 
 class CanBeProperSubset s where
   isProperSubsetOf :: s -> s -> Bool
+
 
 -- Instances
 
