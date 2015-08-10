@@ -14,7 +14,7 @@ import Data.List as List
 import Data.Maybe (fromJust, isJust, mapMaybe)
 
 
--- | Unique, unordered set
+-- | Pronounced "Unordered Unique Set"
 newtype UUSet a = UUSet {unUUSet :: [a]}
   deriving (Functor)
 
@@ -126,7 +126,7 @@ intersection (UUSet xs) (UUSet ys) = UUSet $ foldr go [] xs
 filter :: (a -> Bool) -> UUSet a -> UUSet a
 filter p (UUSet xs) = UUSet $ List.filter p xs
 
--- | /O(n)/
+-- | /O(n)/ - Guaranteed to be disjoint
 partition :: (a -> Bool) -> UUSet a -> (UUSet a, UUSet a)
 partition p (UUSet xs) = let (l,r) = List.partition p xs in (UUSet l, UUSet r)
 
