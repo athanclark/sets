@@ -80,7 +80,7 @@ singleton :: a -> UMSet a
 singleton x = UMSet [x]
 
 -- | /O(1)/
-insert :: Eq a => a -> UMSet a -> UMSet a
+insert :: a -> UMSet a -> UMSet a
 insert x (UMSet xs) = UMSet $ x:xs
 
 -- | /O(n)/
