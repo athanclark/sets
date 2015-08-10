@@ -1,18 +1,39 @@
 {-# LANGUAGE
     NoImplicitPrelude
   , MultiParamTypeClasses
+  , UndecidableInstances
   , FlexibleInstances
+  , FlexibleContexts
+  , GeneralizedNewtypeDeriving
+  , StandaloneDeriving
   #-}
 
 -- | Convenience operators overloaded for arbitrary use.
 -- There are no laws associated with these classes, just duck-typed so
 -- we don't have to use the qualified versions of each function.
 
-module Data.Set.Class where
+module Data.Set.Class
+  ( module X
+  , HasUnion (..)
+  , HasDifference (..)
+  , HasIntersection (..)
+  , HasComplement (..)
+  , HasSingleton (..)
+  , HasSingletonWith (..)
+  , HasEmpty (..)
+  , HasEmptyWith (..)
+  , HasTotal (..)
+  , HasTotalWith (..)
+  , HasSize (..)
+  , CanBeSubset (..)
+  , CanBeProperSubset (..)
+  ) where
 
+import Data.Set.Class.Types as X
 import Prelude (Eq (..), Ord, Int, Bool (..), (&&), (||), ($), (.), not, const)
 import Data.Foldable as Fold
 import Data.Monoid as Monoid
+import Data.Commutative as Comm
 
 import qualified Data.Set as Set
 import qualified Data.Map as Map
@@ -41,6 +62,9 @@ unions :: ( Fold.Foldable f
           ) => f s -> s
 unions = foldr Data.Set.Class.union empty
 
+instance HasUnion s => Commutative (Union s) where
+  commute = union
+
 class HasDifference s where
   difference :: s -> s -> s
 
@@ -52,6 +76,9 @@ intersections :: ( Fold.Foldable f
                  , HasTotal s
                  ) => f s -> s
 intersections = foldr Data.Set.Class.intersection total
+
+instance HasIntersection s => Commutative (Intersection s) where
+  commute = intersection
 
 class HasComplement s where
   complement :: s -> s
@@ -65,11 +92,17 @@ class HasSingletonWith s k a where
 class HasEmpty s where
   empty :: s
 
+instance (Commutative (Union s), HasEmpty s) => CommutativeId (Union s) where
+  cempty = empty
+
 class HasEmptyWith s k where
   emptyWith :: k -> s
 
 class HasTotal s where
   total :: s
+
+instance (Commutative (Intersection s), HasTotal s) => CommutativeId (Intersection s) where
+  cempty = total
 
 class HasTotalWith s k where
   totalWith :: k -> s
@@ -85,6 +118,35 @@ class CanBeProperSubset s where
 
 
 -- Instances
+
+-- Inherit
+deriving instance HasUnion a             => HasUnion             (Union a)
+deriving instance HasDifference a        => HasDifference        (Union a)
+deriving instance HasIntersection a      => HasIntersection      (Union a)
+deriving instance HasComplement a        => HasComplement        (Union a)
+deriving instance HasSingleton x a       => HasSingleton x       (Union a)
+deriving instance HasSingletonWith k x a => HasSingletonWith k x (Union a)
+deriving instance HasEmpty a             => HasEmpty             (Union a)
+deriving instance HasEmptyWith k a       => HasEmptyWith k       (Union a)
+deriving instance HasTotal a             => HasTotal             (Union a)
+deriving instance HasTotalWith k a       => HasTotalWith  k      (Union a)
+deriving instance HasSize a              => HasSize              (Union a)
+deriving instance CanBeSubset a          => CanBeSubset          (Union a)
+deriving instance CanBeProperSubset a    => CanBeProperSubset    (Union a)
+deriving instance HasUnion a             => HasUnion             (Intersection a)
+deriving instance HasDifference a        => HasDifference        (Intersection a)
+deriving instance HasIntersection a      => HasIntersection      (Intersection a)
+deriving instance HasComplement a        => HasComplement        (Intersection a)
+deriving instance HasSingleton x a       => HasSingleton x       (Intersection a)
+deriving instance HasSingletonWith k x a => HasSingletonWith k x (Intersection a)
+deriving instance HasEmpty a             => HasEmpty             (Intersection a)
+deriving instance HasEmptyWith k a       => HasEmptyWith k       (Intersection a)
+deriving instance HasTotal a             => HasTotal             (Intersection a)
+deriving instance HasTotalWith k a       => HasTotalWith  k      (Intersection a)
+deriving instance HasSize a              => HasSize              (Intersection a)
+deriving instance CanBeSubset a          => CanBeSubset          (Intersection a)
+deriving instance CanBeProperSubset a    => CanBeProperSubset    (Intersection a)
+
 
 -- Data.Set
 instance Ord a => HasUnion (Set.Set a) where
