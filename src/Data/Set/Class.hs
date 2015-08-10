@@ -42,6 +42,12 @@ class HasDifference s where
 class HasIntersection s where
   intersection :: s -> s -> s
 
+intersections :: ( Fold.Foldable f
+                 , HasIntersection s
+                 , HasTotal s
+                 ) => f s -> s
+intersections = foldr Data.Set.Class.intersection total
+
 class HasComplement s where
   complement :: s -> s
 
