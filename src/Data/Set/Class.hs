@@ -25,6 +25,10 @@ import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Lazy as HashMap
 import qualified Data.SetWith as SetWith
 import qualified Data.Functor.Contravariant as Pred
+import qualified Data.Set.Ordered.Many as OM
+import Data.Discrimination as Disc
+import qualified Data.Set.Unordered.Many as UM
+import qualified Data.Set.Unordered.Unique as UU
 
 
 class HasUnion s where
@@ -287,3 +291,81 @@ instance HasEmpty (Pred.Predicate a) where
 
 instance HasTotal (Pred.Predicate a) where
   total = Pred.Predicate $ const True
+
+
+-- Data.Set.Ordered.Many
+instance Disc.Sorting a => HasUnion (OM.OMSet a) where
+  union = OM.union
+
+instance Eq a => HasDifference (OM.OMSet a) where
+  difference = OM.difference
+
+instance Ord a => HasIntersection (OM.OMSet a) where
+  intersection = OM.intersection
+
+instance HasSingleton (OM.OMSet a) a where
+  singleton = OM.singleton
+
+instance HasEmpty (OM.OMSet a) where
+  empty = OM.empty
+
+instance HasSize (OM.OMSet a) where
+  size = OM.size
+
+instance Eq a => CanBeSubset (OM.OMSet a) where
+  isSubsetOf = OM.isSubsetOf
+
+instance Eq a => CanBeProperSubset (OM.OMSet a) where
+  isProperSubsetOf = OM.isProperSubsetOf
+
+
+-- Data.Set.Unordered.Many
+instance Eq a => HasUnion (UM.UMSet a) where
+  union = UM.union
+
+instance Eq a => HasDifference (UM.UMSet a) where
+  difference = UM.difference
+
+instance Eq a => HasIntersection (UM.UMSet a) where
+  intersection = UM.intersection
+
+instance HasSingleton (UM.UMSet a) a where
+  singleton = UM.singleton
+
+instance HasEmpty (UM.UMSet a) where
+  empty = UM.empty
+
+instance HasSize (UM.UMSet a) where
+  size = UM.size
+
+instance Eq a => CanBeSubset (UM.UMSet a) where
+  isSubsetOf = UM.isSubsetOf
+
+instance Eq a => CanBeProperSubset (UM.UMSet a) where
+  isProperSubsetOf = UM.isProperSubsetOf
+
+
+-- Data.Set.Unordered.Unique
+instance Eq a => HasUnion (UU.UUSet a) where
+  union = UU.union
+
+instance Eq a => HasDifference (UU.UUSet a) where
+  difference = UU.difference
+
+instance Eq a => HasIntersection (UU.UUSet a) where
+  intersection = UU.intersection
+
+instance HasSingleton (UU.UUSet a) a where
+  singleton = UU.singleton
+
+instance HasEmpty (UU.UUSet a) where
+  empty = UU.empty
+
+instance HasSize (UU.UUSet a) where
+  size = UU.size
+
+instance Eq a => CanBeSubset (UU.UUSet a) where
+  isSubsetOf = UU.isSubsetOf
+
+instance Eq a => CanBeProperSubset (UU.UUSet a) where
+  isProperSubsetOf = UU.isProperSubsetOf
