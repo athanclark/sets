@@ -57,6 +57,9 @@ class HasEmpty s where
 class HasEmptyWith s k where
   emptyWith :: k -> s
 
+class HasTotal s where
+  total :: s
+
 class HasSize s where
   size :: s -> Int
 
@@ -267,11 +270,14 @@ instance HasDifference (Pred.Predicate a) where
 instance HasIntersection (Pred.Predicate a) where
   intersection (Pred.Predicate f) (Pred.Predicate g) = Pred.Predicate $ \x -> f x && g x
 
+instance HasComplement (Pred.Predicate a) where
+  complement (Pred.Predicate f) = Pred.Predicate $ not . f
+
 instance Eq a => HasSingleton (Pred.Predicate a) a where
   singleton a = Pred.Predicate $ \x -> a == x
 
 instance HasEmpty (Pred.Predicate a) where
   empty = Pred.Predicate $ const False
 
-instance HasComplement (Pred.Predicate a) where
-  complement (Pred.Predicate f) = Pred.Predicate $ not . f
+instance HasTotal (Pred.Predicate a) where
+  total = Pred.Predicate $ const True
