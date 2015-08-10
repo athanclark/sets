@@ -10,7 +10,7 @@
 
 module Data.Set.Class where
 
-import Prelude (Eq, Ord, Int, Bool)
+import Prelude (Eq (..), Ord, Int, Bool (..), (&&), (||), ($), not, const)
 import Data.Foldable as Fold
 import Data.Monoid as Monoid
 
@@ -24,6 +24,7 @@ import Data.Hashable (Hashable)
 import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Lazy as HashMap
 import qualified Data.SetWith as SetWith
+import qualified Data.Functor.Contravariant as Pred
 
 
 class HasUnion s where
@@ -255,3 +256,19 @@ instance (Ord k, Eq a) => CanBeSubset (SetWith.SetWith k a) where
 
 instance (Ord k, Eq a) => CanBeProperSubset (SetWith.SetWith k a) where
   isProperSubsetOf = SetWith.isProperSubsetOf
+
+-- Data.Functor.Contravariant.Predicate
+instance HasUnion (Pred.Predicate a) where
+  union (Pred.Predicate f) (Pred.Predicate g) = Pred.Predicate $ \x -> f x || g x
+
+instance HasDifference (Pred.Predicate a) where
+  difference (Pred.Predicate f) (Pred.Predicate g) = Pred.Predicate $ \x -> f x && not (g x)
+
+instance HasIntersection (Pred.Predicate a) where
+  intersection (Pred.Predicate f) (Pred.Predicate g) = Pred.Predicate $ \x -> f x && g x
+
+instance Eq a => HasSingleton (Pred.Predicate a) a where
+  singleton a = Pred.Predicate $ \x -> a == x
+
+instance HasEmpty (Pred.Predicate a) where
+  empty = Pred.Predicate $ const False

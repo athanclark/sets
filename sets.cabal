@@ -21,6 +21,7 @@ Library
                       , hashable
                       , set-with
                       , commutative
+                      , contravariant
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0
