@@ -10,7 +10,7 @@
 
 module Data.Set.Class where
 
-import Prelude (Eq (..), Ord, Int, Bool (..), (&&), (||), ($), not, const)
+import Prelude (Eq (..), Ord, Int, Bool (..), (&&), (||), ($), (.), not, const)
 import Data.Foldable as Fold
 import Data.Monoid as Monoid
 
@@ -272,3 +272,6 @@ instance Eq a => HasSingleton (Pred.Predicate a) a where
 
 instance HasEmpty (Pred.Predicate a) where
   empty = Pred.Predicate $ const False
+
+instance HasComplement (Pred.Predicate a) where
+  complement (Pred.Predicate f) = Pred.Predicate $ not . f
