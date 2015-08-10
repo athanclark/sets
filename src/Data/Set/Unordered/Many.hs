@@ -10,9 +10,11 @@ import Data.List as List hiding (delete)
 import Data.Maybe (fromJust, isJust, mapMaybe)
 
 
-  -- | Unordered sets with duplicate elements. The semantics for "unordering" is based on the idea
-  -- that we will not know what order the elements are in at any point, and we
-  -- are free to re-order elements in any way.
+-- | Unordered sets with duplicate elements. The semantics for "unordering" is based on the idea
+-- that we will not know what order the elements are in at any point, and we
+-- are free to re-order elements in any way.
+--
+-- Most binary functions are algorithmically heavier on the right arguments.
 
 -- | Pronounced "Unordered Many Set"
 newtype UMSet a = UMSet {unUMSet :: [a]}

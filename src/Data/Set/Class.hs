@@ -385,6 +385,9 @@ instance Ord a => HasDifference (OUF.FiniteSet a) where
 instance Ord a => HasIntersection (OUF.FiniteSet a) where
   intersection = OUF.intersection
 
+instance Ord a => HasComplement (OUF.FiniteSet a) where
+  complement = OUF.complement
+
 instance HasSingletonWith (OUF.FiniteSet a) (Set.Set a) a where
   singletonWith = OUF.singleton
 

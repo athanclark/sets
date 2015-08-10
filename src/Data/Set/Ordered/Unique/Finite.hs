@@ -75,6 +75,10 @@ difference (FiniteSet (_,xs)) (FiniteSet (t,ys)) = FiniteSet (t, Set.difference 
 intersection :: Ord a => FiniteSet a -> FiniteSet a -> FiniteSet a
 intersection (FiniteSet (_,xs)) (FiniteSet (t,ys)) = FiniteSet (t, Set.intersection xs ys)
 
+-- | /O(n+t)
+complement :: Ord a => FiniteSet a -> FiniteSet a
+complement (FiniteSet (t,xs)) = FiniteSet (t, Set.difference t xs)
+
 -- * Filter
 
 -- | /O(n)/
