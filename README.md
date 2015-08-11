@@ -1,31 +1,50 @@
-# sets
+sets
+====
 
-TODO: Write description here
+> TODO: Insert & Delete still need to get done :x
 
-## Installation
-
-TODO: Write installation instructions here
+This package provides overloaded terms, commonly used with set-like types,
+like `Map` and `Set` from `containers`. There are also unorthodox, mostly useless
+data types defined here - playing with ordering, uniqueness and finiteness.
 
 ## Usage
 
-### Creating `x`
+The following actions are overloaded:
 
-TODO: Write usage instructions here
+- `union`
+- `intersection`
+- `difference`
+- `complement`
+- `size`
+- `singleton`
+- `empty`
+- `total`
+- `insert`
+- `delete`
+- `isSubsetOf` `isProperSubsetOf`
 
-### Combining `x`
+Each with their own typeclass. Also, the following data types are defined:
 
-TODO: Write usage instructions here
+- Ordered Sets
+    - Unique
+        - Finite
+    - Multiple
+- Unordered Sets
+    - Unique
+    - Multiple
 
-### Consuming `x`
+### Proper Usage
 
-TODO: Write usage instructions here
+To use the overloaded terms, they need to be the only ones in scope. To make this
+correct, we still need to import our container particularly:
 
-## How to run tests
+```haskell
+import qualified Data.Set as Set
+import Data.Map (Map) -- just to use the type name
 
+foo :: Map
+foo = x `union` y
+
+bar :: Set.Set
+bar = a `union` b
 ```
-cabal configure --enable-tests && cabal build && cabal test
-```
-
-## Contributing
-
-TODO: Write contribution instructions here

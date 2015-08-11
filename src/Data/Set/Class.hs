@@ -13,8 +13,7 @@
 -- we don't have to use the qualified versions of each function.
 
 module Data.Set.Class
-  ( module X
-  , HasUnion (..)
+  ( HasUnion (..)
   , HasDifference (..)
   , HasIntersection (..)
   , HasComplement (..)
@@ -27,9 +26,10 @@ module Data.Set.Class
   , HasSize (..)
   , CanBeSubset (..)
   , CanBeProperSubset (..)
+  , Union (..)
+  , Intersection (..)
   ) where
 
-import Data.Set.Class.Types as X
 import Prelude (Eq (..), Ord, Int, Bool (..), (&&), (||), ($), (.), not, const)
 import Data.Foldable as Fold
 import Data.Monoid as Monoid
@@ -52,6 +52,9 @@ import qualified Data.Set.Unordered.Many as UM
 import qualified Data.Set.Unordered.Unique as UU
 import qualified Data.Set.Ordered.Unique.Finite as OUF
 
+
+newtype Union a = Union {unUnion :: a}
+newtype Intersection a = Intersection {unIntersection :: a}
 
 class HasUnion s where
   union :: s -> s -> s

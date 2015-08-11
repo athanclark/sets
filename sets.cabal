@@ -1,20 +1,20 @@
 Name:                   sets
-Version:                0.0.1
+Version:                0.0.1.1
 Author:                 Athan Clark <athan.clark@gmail.com>
 Maintainer:             Athan Clark <athan.clark@gmail.com>
 License:                MIT
 License-File:           LICENSE
-Synopsis:               Various set designs in Haskell
--- Description:
+Synopsis:               Various set implementations in Haskell
+Description:            This also includes overloaded functions for common set operations. See @Data.Set.Class@.
 Cabal-Version:          >= 1.10
 Build-Type:             Simple
+Category:               Data, Math
 
 Library
   Default-Language:     Haskell2010
   HS-Source-Dirs:       src
   GHC-Options:          -Wall
   Exposed-Modules:      Data.Set.Class
-                        Data.Set.Class.Types
                         Data.Set.Unordered.Unique
                         Data.Set.Unordered.Many
                         Data.Set.Ordered.Unique
@@ -44,4 +44,4 @@ Test-Suite spec
 
 Source-Repository head
   Type:                 git
-  Location:              https://github.com/athanclark/sets.git
+  Location:             https://github.com/athanclark/sets.git
