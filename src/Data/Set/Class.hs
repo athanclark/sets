@@ -16,6 +16,7 @@ module Data.Set.Class
   ( HasUnion (..)
   , HasDifference (..)
   , HasIntersection (..)
+  , HasXUnion (..)
   , HasComplement (..)
   , HasSingleton (..)
   , HasSingletonWith (..)
@@ -53,8 +54,9 @@ import qualified Data.Set.Unordered.Unique as UU
 import qualified Data.Set.Ordered.Unique.Finite as OUF
 
 
-newtype Union a = Union {unUnion :: a}
+newtype Union a        = Union {unUnion :: a}
 newtype Intersection a = Intersection {unIntersection :: a}
+newtype XUnion a       = XUnion {unXUnion :: a}
 
 class HasUnion s where
   union :: s -> s -> s
@@ -67,6 +69,10 @@ unions = foldr Data.Set.Class.union empty
 
 instance HasUnion s => Commutative (Union s) where
   commute = union
+
+instance (HasUnion s, HasEmpty s) => Monoid.Monoid (Union s) where
+  mappend = union
+  mempty = empty
 
 class HasDifference s where
   difference :: s -> s -> s
@@ -83,11 +89,23 @@ intersections = foldr Data.Set.Class.intersection total
 instance HasIntersection s => Commutative (Intersection s) where
   commute = intersection
 
+instance (HasIntersection s, HasTotal s) => Monoid.Monoid (Intersection s) where
+  mappend = intersection
+  mempty = total
+
 class HasXUnion s where
   xunion :: s -> s -> s
 
 instance (HasUnion s, HasIntersection s, HasDifference s) => HasXUnion s where
   xunion x y = union x y `difference` intersection x y
+
+instance (HasXUnion s, HasUnion s, HasIntersection s, HasDifference s) => Commutative (XUnion s) where
+  commute = xunion
+
+instance (HasXUnion s, HasEmpty s, HasUnion s, HasIntersection s, HasDifference s) => Monoid.Monoid (XUnion s) where
+  mappend = xunion
+  mempty = empty
+
 
 class HasComplement s where
   complement :: s -> s
@@ -155,6 +173,19 @@ deriving instance HasTotalWith k a       => HasTotalWith  k      (Intersection a
 deriving instance HasSize a              => HasSize              (Intersection a)
 deriving instance CanBeSubset a          => CanBeSubset          (Intersection a)
 deriving instance CanBeProperSubset a    => CanBeProperSubset    (Intersection a)
+deriving instance HasUnion a             => HasUnion             (XUnion a)
+deriving instance HasDifference a        => HasDifference        (XUnion a)
+deriving instance HasIntersection a      => HasIntersection      (XUnion a)
+deriving instance HasComplement a        => HasComplement        (XUnion a)
+deriving instance HasSingleton x a       => HasSingleton x       (XUnion a)
+deriving instance HasSingletonWith k x a => HasSingletonWith k x (XUnion a)
+deriving instance HasEmpty a             => HasEmpty             (XUnion a)
+deriving instance HasEmptyWith k a       => HasEmptyWith k       (XUnion a)
+deriving instance HasTotal a             => HasTotal             (XUnion a)
+deriving instance HasTotalWith k a       => HasTotalWith  k      (XUnion a)
+deriving instance HasSize a              => HasSize              (XUnion a)
+deriving instance CanBeSubset a          => CanBeSubset          (XUnion a)
+deriving instance CanBeProperSubset a    => CanBeProperSubset    (XUnion a)
 
 
 -- Data.Set
