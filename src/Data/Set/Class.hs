@@ -83,6 +83,12 @@ intersections = foldr Data.Set.Class.intersection total
 instance HasIntersection s => Commutative (Intersection s) where
   commute = intersection
 
+class HasXUnion s where
+  xunion :: s -> s -> s
+
+instance (HasUnion s, HasIntersection s, HasDifference s) => HasXUnion s where
+  xunion x y = union x y `difference` intersection x y
+
 class HasComplement s where
   complement :: s -> s
 
