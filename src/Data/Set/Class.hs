@@ -12,24 +12,7 @@
 -- There are no laws associated with these classes, just duck-typed so
 -- we don't have to use the qualified versions of each function.
 
-module Data.Set.Class
-  ( HasUnion (..)
-  , HasDifference (..)
-  , HasIntersection (..)
-  , HasXUnion (..)
-  , HasComplement (..)
-  , HasSingleton (..)
-  , HasSingletonWith (..)
-  , HasEmpty (..)
-  , HasEmptyWith (..)
-  , HasTotal (..)
-  , HasTotalWith (..)
-  , HasSize (..)
-  , CanBeSubset (..)
-  , CanBeProperSubset (..)
-  , Union (..)
-  , Intersection (..)
-  ) where
+module Data.Set.Class where
 
 import Prelude (Eq (..), Ord, Int, Bool (..), (&&), (||), ($), (.), not, const)
 import Data.Foldable as Fold
