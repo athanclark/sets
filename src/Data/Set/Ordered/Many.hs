@@ -1,22 +1,41 @@
 {-# LANGUAGE
     GeneralizedNewtypeDeriving
   , DeriveFunctor
+  , DeriveFoldable
+  , DeriveTraversable
   #-}
 
 module Data.Set.Ordered.Many where
 
 import Data.Mergeable
 import Data.List as List hiding (delete)
+import Data.Foldable as Fold
+import Data.Traversable
 import Data.Discrimination as Disc
 import Data.Maybe (fromJust, isJust, mapMaybe)
+import Control.Monad.Fix
 
 
 -- | Ordered sets with duplicate elements.
 newtype OMSet a = OMSet {unOMSet :: [a]}
-  deriving (Functor)
+  deriving ( Eq
+           , Functor
+           , Applicative
+           , Monad
+           , Fold.Foldable
+           , Traversable
+           , MonadFix
+           )
 
 instance Mergeable OMSet where
   mergeMap f (OMSet xs) = mergeMap f xs
+
+instance Show a => Show (OMSet a) where
+  show (OMSet xs) = "OMSet {" ++ show' xs ++ "}"
+    where
+      show' [] = ""
+      show' [x] = show x
+      show' (x:xs) = show x ++ ", " ++ show' xs
 
 -- * Operators
 
@@ -92,7 +111,7 @@ delete x (OMSet xs) = OMSet $ List.filter (== x) xs
 
 -- | /O(n+m)/
 union :: Disc.Sorting a => OMSet a -> OMSet a -> OMSet a
-union (OMSet xs) (OMSet ys) = OMSet $ Disc.sort (xs ++ ys) -- TODO: Use descrimonation
+union (OMSet xs) (OMSet ys) = OMSet $ Disc.sort (xs ++ ys)
 
 -- | /O(n*m)/
 difference :: Eq a => OMSet a -> OMSet a -> OMSet a

@@ -28,13 +28,13 @@ import qualified Data.List as List
 import Data.Hashable (Hashable)
 import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Lazy as HashMap
-import qualified Data.SetWith as SetWith
 import qualified Data.Functor.Contravariant as Pred
 import qualified Data.Set.Ordered.Many as OM
 import Data.Discrimination as Disc
 import qualified Data.Set.Unordered.Many as UM
 import qualified Data.Set.Unordered.Unique as UU
 import qualified Data.Set.Ordered.Unique.Finite as OUF
+import qualified Data.Set.Ordered.Unique.With as SetWith
 
 
 newtype Union a        = Union {unUnion :: a}
@@ -93,11 +93,20 @@ instance (HasXUnion s, HasEmpty s, HasUnion s, HasIntersection s, HasDifference 
 class HasComplement s where
   complement :: s -> s
 
-class HasSingleton s a where
+class HasSingleton a s where
   singleton :: a -> s
 
-class HasSingletonWith s k a where
+class HasSingletonWith k a s where
   singletonWith :: k -> a -> s
+
+class HasDelete a s where
+  delete :: a -> s -> s
+
+class HasInsert a s where
+  insert :: a -> s -> s
+
+class HasInsertWith k a s where
+  insertWith :: k -> a -> s -> s
 
 class HasEmpty s where
   empty :: s
@@ -105,7 +114,7 @@ class HasEmpty s where
 instance (Commutative (Union s), HasEmpty s) => CommutativeId (Union s) where
   cempty = empty
 
-class HasEmptyWith s k where
+class HasEmptyWith k s where
   emptyWith :: k -> s
 
 class HasTotal s where
@@ -114,7 +123,7 @@ class HasTotal s where
 instance (Commutative (Intersection s), HasTotal s) => CommutativeId (Intersection s) where
   cempty = total
 
-class HasTotalWith s k where
+class HasTotalWith k s where
   totalWith :: k -> s
 
 class HasSize s where
@@ -136,6 +145,9 @@ deriving instance HasIntersection a      => HasIntersection      (Union a)
 deriving instance HasComplement a        => HasComplement        (Union a)
 deriving instance HasSingleton x a       => HasSingleton x       (Union a)
 deriving instance HasSingletonWith k x a => HasSingletonWith k x (Union a)
+deriving instance HasInsert x a          => HasInsert x          (Union a)
+deriving instance HasInsertWith k x a    => HasInsertWith k x    (Union a)
+deriving instance HasDelete x a          => HasDelete x          (Union a)
 deriving instance HasEmpty a             => HasEmpty             (Union a)
 deriving instance HasEmptyWith k a       => HasEmptyWith k       (Union a)
 deriving instance HasTotal a             => HasTotal             (Union a)
@@ -149,6 +161,9 @@ deriving instance HasIntersection a      => HasIntersection      (Intersection a
 deriving instance HasComplement a        => HasComplement        (Intersection a)
 deriving instance HasSingleton x a       => HasSingleton x       (Intersection a)
 deriving instance HasSingletonWith k x a => HasSingletonWith k x (Intersection a)
+deriving instance HasInsert x a          => HasInsert x          (Intersection a)
+deriving instance HasInsertWith k x a    => HasInsertWith k x    (Intersection a)
+deriving instance HasDelete x a          => HasDelete x          (Intersection a)
 deriving instance HasEmpty a             => HasEmpty             (Intersection a)
 deriving instance HasEmptyWith k a       => HasEmptyWith k       (Intersection a)
 deriving instance HasTotal a             => HasTotal             (Intersection a)
@@ -162,6 +177,9 @@ deriving instance HasIntersection a      => HasIntersection      (XUnion a)
 deriving instance HasComplement a        => HasComplement        (XUnion a)
 deriving instance HasSingleton x a       => HasSingleton x       (XUnion a)
 deriving instance HasSingletonWith k x a => HasSingletonWith k x (XUnion a)
+deriving instance HasInsert x a          => HasInsert x          (XUnion a)
+deriving instance HasInsertWith k x a    => HasInsertWith k x    (XUnion a)
+deriving instance HasDelete x a          => HasDelete x          (XUnion a)
 deriving instance HasEmpty a             => HasEmpty             (XUnion a)
 deriving instance HasEmptyWith k a       => HasEmptyWith k       (XUnion a)
 deriving instance HasTotal a             => HasTotal             (XUnion a)
@@ -181,8 +199,14 @@ instance Ord a => HasDifference (Set.Set a) where
 instance Ord a => HasIntersection (Set.Set a) where
   intersection = Set.intersection
 
-instance HasSingleton (Set.Set a) a where
+instance HasSingleton a (Set.Set a) where
   singleton = Set.singleton
+
+instance Ord a => HasInsert a (Set.Set a) where
+  insert = Set.insert
+
+instance Ord a => HasDelete a (Set.Set a) where
+  delete = Set.delete
 
 instance HasEmpty (Set.Set a) where
   empty = Set.empty
@@ -207,8 +231,14 @@ instance Ord k => HasDifference (Map.Map k a) where
 instance Ord k => HasIntersection (Map.Map k a) where
   intersection = Map.intersection
 
-instance HasSingletonWith (Map.Map k a) k a where
+instance HasSingletonWith k a (Map.Map k a) where
   singletonWith = Map.singleton
+
+instance Ord k => HasInsertWith k a (Map.Map k a) where
+  insertWith = Map.insert
+
+instance Ord k => HasDelete k (Map.Map k a) where
+  delete = Map.delete
 
 instance HasEmpty (Map.Map k a) where
   empty = Map.empty
@@ -224,8 +254,14 @@ instance (Eq k, Ord k, Eq a) => CanBeProperSubset (Map.Map k a) where
 
 
 -- Data.List
-instance HasSingleton [a] a where
+instance HasSingleton a [a] where
   singleton = (:[])
+
+instance HasInsert a [a] where
+  insert = (:)
+
+instance Eq a => HasDelete a [a] where
+  delete x = List.filter (== x)
 
 instance HasEmpty [a] where
   empty = []
@@ -234,7 +270,7 @@ instance HasSize [a] where
   size = List.length
 
 -- Data.Sequence
-instance HasSingleton (Seq.Seq a) a where
+instance HasSingleton a (Seq.Seq a) where
   singleton = Seq.singleton
 
 instance HasEmpty (Seq.Seq a) where
@@ -253,8 +289,14 @@ instance HasDifference IntSet.IntSet where
 instance HasIntersection IntSet.IntSet where
   intersection = IntSet.intersection
 
-instance HasSingleton IntSet.IntSet IntSet.Key where
+instance HasSingleton IntSet.Key IntSet.IntSet where
   singleton = IntSet.singleton
+
+instance HasInsert IntSet.Key IntSet.IntSet where
+  insert = IntSet.insert
+
+instance HasDelete IntSet.Key IntSet.IntSet where
+  delete = IntSet.delete
 
 instance HasEmpty IntSet.IntSet where
   empty = IntSet.empty
@@ -279,8 +321,14 @@ instance HasDifference (IntMap.IntMap a) where
 instance HasIntersection (IntMap.IntMap a) where
   intersection = IntMap.intersection
 
-instance HasSingletonWith (IntMap.IntMap a) IntMap.Key a where
+instance HasSingletonWith IntMap.Key a (IntMap.IntMap a) where
   singletonWith = IntMap.singleton
+
+instance HasInsertWith IntMap.Key a (IntMap.IntMap a) where
+  insertWith = IntMap.insert
+
+instance HasDelete IntMap.Key (IntMap.IntMap a) where
+  delete = IntMap.delete
 
 instance HasEmpty (IntMap.IntMap a) where
   empty = IntMap.empty
@@ -305,8 +353,14 @@ instance (Hashable a, Eq a) => HasDifference (HashSet.HashSet a) where
 instance (Hashable a, Eq a) => HasIntersection (HashSet.HashSet a) where
   intersection = HashSet.intersection
 
-instance Hashable a => HasSingleton (HashSet.HashSet a) a where
+instance Hashable a => HasSingleton a (HashSet.HashSet a) where
   singleton = HashSet.singleton
+
+instance (Hashable a, Eq a) => HasInsert a (HashSet.HashSet a) where
+  insert = HashSet.insert
+
+instance (Hashable a, Eq a) => HasDelete a (HashSet.HashSet a) where
+  delete = HashSet.delete
 
 instance HasEmpty (HashSet.HashSet a) where
   empty = HashSet.empty
@@ -325,8 +379,14 @@ instance (Hashable k, Eq k) => HasDifference (HashMap.HashMap k a) where
 instance (Hashable k, Eq k) => HasIntersection (HashMap.HashMap k a) where
   intersection = HashMap.intersection
 
-instance Hashable k => HasSingletonWith (HashMap.HashMap k a) k a where
+instance Hashable k => HasSingletonWith k a (HashMap.HashMap k a) where
   singletonWith = HashMap.singleton
+
+instance (Hashable k, Eq k) => HasInsertWith k a (HashMap.HashMap k a) where
+  insertWith = HashMap.insert
+
+instance (Hashable k, Eq k) => HasDelete k (HashMap.HashMap k a) where
+  delete = HashMap.delete
 
 instance HasEmpty (HashMap.HashMap k a) where
   empty = HashMap.empty
@@ -344,10 +404,16 @@ instance Ord k => HasDifference (SetWith.SetWith k a) where
 instance Ord k => HasIntersection (SetWith.SetWith k a) where
   intersection = SetWith.intersection
 
-instance Ord k => HasSingletonWith (SetWith.SetWith k a) (a -> k) a where
+instance Ord k => HasSingletonWith (a -> k) a (SetWith.SetWith k a) where
   singletonWith = SetWith.singleton
 
-instance HasEmptyWith (SetWith.SetWith k a) (a -> k) where
+instance Ord k => HasInsert a (SetWith.SetWith k a) where
+  insert = SetWith.insert
+
+instance Ord k => HasDelete a (SetWith.SetWith k a) where
+  delete = SetWith.delete
+
+instance HasEmptyWith (a -> k) (SetWith.SetWith k a) where
   emptyWith = SetWith.empty
 
 instance HasSize (SetWith.SetWith k a) where
@@ -372,8 +438,14 @@ instance HasIntersection (Pred.Predicate a) where
 instance HasComplement (Pred.Predicate a) where
   complement (Pred.Predicate f) = Pred.Predicate $ not . f
 
-instance Eq a => HasSingleton (Pred.Predicate a) a where
+instance Eq a => HasSingleton a (Pred.Predicate a) where
   singleton a = Pred.Predicate $ \x -> a == x
+
+instance Eq a => HasInsert a (Pred.Predicate a) where
+  insert a (Pred.Predicate f) = Pred.Predicate $ \x -> a == x || f x
+
+instance Eq a => HasDelete a (Pred.Predicate a) where
+  delete a (Pred.Predicate f) = Pred.Predicate $ \x -> a /= x && f x
 
 instance HasEmpty (Pred.Predicate a) where
   empty = Pred.Predicate $ const False
@@ -392,8 +464,14 @@ instance Eq a => HasDifference (OM.OMSet a) where
 instance Ord a => HasIntersection (OM.OMSet a) where
   intersection = OM.intersection
 
-instance HasSingleton (OM.OMSet a) a where
+instance HasSingleton a (OM.OMSet a) where
   singleton = OM.singleton
+
+instance Ord a => HasInsert a (OM.OMSet a) where
+  insert = OM.insert
+
+instance Eq a => HasDelete a (OM.OMSet a) where
+  delete = OM.delete
 
 instance HasEmpty (OM.OMSet a) where
   empty = OM.empty
@@ -418,8 +496,14 @@ instance Eq a => HasDifference (UM.UMSet a) where
 instance Eq a => HasIntersection (UM.UMSet a) where
   intersection = UM.intersection
 
-instance HasSingleton (UM.UMSet a) a where
+instance HasSingleton a (UM.UMSet a) where
   singleton = UM.singleton
+
+instance HasInsert a (UM.UMSet a) where
+  insert = UM.insert
+
+instance Eq a => HasDelete a (UM.UMSet a) where
+  delete = UM.delete
 
 instance HasEmpty (UM.UMSet a) where
   empty = UM.empty
@@ -444,8 +528,14 @@ instance Eq a => HasDifference (UU.UUSet a) where
 instance Eq a => HasIntersection (UU.UUSet a) where
   intersection = UU.intersection
 
-instance HasSingleton (UU.UUSet a) a where
+instance HasSingleton a (UU.UUSet a) where
   singleton = UU.singleton
+
+instance Eq a => HasInsert a (UU.UUSet a) where
+  insert = UU.insert
+
+instance Eq a => HasDelete a (UU.UUSet a) where
+  delete = UU.delete
 
 instance HasEmpty (UU.UUSet a) where
   empty = UU.empty
@@ -473,10 +563,16 @@ instance Ord a => HasIntersection (OUF.FiniteSet a) where
 instance Ord a => HasComplement (OUF.FiniteSet a) where
   complement = OUF.complement
 
-instance HasSingletonWith (OUF.FiniteSet a) (Set.Set a) a where
+instance HasSingletonWith (Set.Set a) a (OUF.FiniteSet a) where
   singletonWith = OUF.singleton
 
-instance HasEmptyWith (OUF.FiniteSet a) (Set.Set a) where
+instance Ord a => HasInsert a (OUF.FiniteSet a) where
+  insert = OUF.insert
+
+instance Ord a => HasDelete a (OUF.FiniteSet a) where
+  delete = OUF.delete
+
+instance HasEmptyWith (Set.Set a) (OUF.FiniteSet a) where
   emptyWith = OUF.empty
 
 instance HasTotalWith (OUF.FiniteSet a) (OUF.FiniteSet a) where

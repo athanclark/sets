@@ -18,16 +18,18 @@ Library
                         Data.Set.Unordered.Unique
                         Data.Set.Unordered.Many
                         Data.Set.Ordered.Unique
+                        Data.Set.Ordered.Unique.With
                         Data.Set.Ordered.Unique.Finite
                         Data.Set.Ordered.Many
+                        Data.Set.Ordered.Many.With
   Build-Depends:        base >= 4.6 && < 5
                       , containers
                       , unordered-containers
                       , hashable
-                      , set-with
                       , commutative
                       , contravariant
                       , discrimination
+                      , invariant
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0
