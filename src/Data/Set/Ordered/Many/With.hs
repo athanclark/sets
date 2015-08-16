@@ -1,22 +1,27 @@
 {-# LANGUAGE
-    GeneralizedNewtypeDeriving
+    NoImplicitPrelude
+  , GeneralizedNewtypeDeriving
   #-}
 
 module Data.Set.Ordered.Many.With where
 
+import Prelude (($), (.), Eq (..), Ord (..), Maybe (..)
+               , Bool (..), (&&), (||), and, not, Functor (..), Int)
 import qualified Data.Set.Class as Sets
 import qualified Data.Set.Ordered.Many as OM
 import qualified Data.Set.Ordered.Unique.With as OU
 import qualified Data.Map as Map
+import qualified Data.Witherable as Wither
 
 import Data.Monoid
+import Data.Functor.Invariant
 import Control.Applicative hiding (empty)
 
 
 newtype SetsWith k c a = SetsWith {unSetsWith :: (a -> k, Map.Map k (c a))}
 
--- instance Invariant (SetsWith k c) where
---   invmap = map
+instance Functor c => Invariant (SetsWith k c) where
+  invmap = map
 
 -- instance Fold.Foldable (SetWith k) where
 --   foldr = Data.Set.Ordered.Unique.With.foldr
@@ -28,7 +33,7 @@ newtype SetsWith k c a = SetsWith {unSetsWith :: (a -> k, Map.Map k (c a))}
         , Sets.HasDifference (c a)
         ) => SetsWith k c a -> SetsWith k c a -> SetsWith k c a
 (SetsWith (f,xs)) \\ (SetsWith (_,ys)) = SetsWith
-  (f, Map.unionWith (Sets.difference) xs (ys `Map.intersection` xs))
+  (f, Map.unionWith Sets.difference xs (ys `Map.intersection` xs))
 
 -- * Query
 
@@ -102,24 +107,39 @@ delete x (SetsWith (f,xs)) =
     Nothing -> SetsWith (f,xs)
 
 -- * Combine
---
--- union :: Ord k => SetWith k a -> SetWith k a -> SetWith k a
--- union (SetWith (f,xs)) (SetWith (_,ys)) = SetWith (f, Map.union xs ys)
---
--- unions :: Ord k => (a -> k) -> [SetWith k a] -> SetWith k a
--- unions f = List.foldl' union $ empty f
---
--- difference :: Ord k => SetWith k a -> SetWith k a -> SetWith k a
--- difference (SetWith (f,xs)) (SetWith (_,ys)) = SetWith (f, Map.difference xs ys)
---
--- intersection :: Ord k => SetWith k a -> SetWith k a -> SetWith k a
--- intersection (SetWith (f,xs)) (SetWith (_,ys)) = SetWith (f, Map.intersection xs ys)
---
+
+union :: ( Ord k
+         , Sets.HasUnion (c a)
+         ) => SetsWith k c a -> SetsWith k c a -> SetsWith k c a
+union (SetsWith (f,xs)) (SetsWith (_,ys)) = SetsWith
+  (f, Map.unionWith Sets.union xs ys)
+
+difference :: ( Ord k
+              , Eq (c a)
+              , Sets.HasEmpty (c a)
+              , Sets.HasDifference (c a)
+              ) => SetsWith k c a -> SetsWith k c a -> SetsWith k c a
+difference (SetsWith (f,xs)) (SetsWith (_,ys)) = SetsWith
+  (f, Map.filter (/= Sets.empty) $ Map.unionWith Sets.difference
+        xs (ys `Map.intersection` xs))
+
+intersection :: ( Ord k
+                , Eq (c a)
+                , Sets.HasEmpty (c a)
+                , Sets.HasIntersection (c a)
+                ) => SetsWith k c a -> SetsWith k c a -> SetsWith k c a
+intersection (SetsWith (f,xs)) (SetsWith (_,ys)) = SetsWith
+  (f, Map.filter (/= Sets.empty) $ Map.intersectionWith Sets.intersection xs ys)
+
 -- -- * Filter
---
--- filter :: (a -> Bool) -> SetWith k a -> SetWith k a
--- filter p (SetWith (f,xs)) = SetWith (f, Map.filter p xs)
---
+
+filter :: ( Eq (c a)
+          , Sets.HasEmpty (c a)
+          , Wither.Witherable c
+          ) => (a -> Bool) -> SetsWith k c a -> SetsWith k c a
+filter p (SetsWith (f,xs)) = SetsWith (f, Map.filter (/= Sets.empty) $
+  Map.map (Wither.filter p) xs)
+
 -- partition :: (a -> Bool) -> SetWith k a -> (SetWith k a, SetWith k a)
 -- partition p (SetWith (f,xs)) = let zs = Map.partition p xs
 --                                in (SetWith (f, fst zs), SetWith (f, snd zs))
@@ -135,10 +155,10 @@ delete x (SetsWith (f,xs)) =
 -- splitRoot :: Ord k => SetWith k a -> [SetWith k a]
 -- splitRoot (SetWith (f,xs)) = let xss = Map.splitRoot xs
 --                              in fmap (\a -> SetWith (f,a)) xss
---
+
 -- -- * Indexed
---
--- lookupIndex :: Ord k => a -> SetWith k a -> Maybe Int
+
+-- lookupIndex :: Ord k => a -> SetsWith k c a -> Maybe Int
 -- lookupIndex x (SetWith (f,xs)) = Map.lookupIndex (f x) xs
 --
 -- findIndex :: Ord k => a -> SetWith k a -> Int
@@ -149,15 +169,19 @@ delete x (SetsWith (f,xs)) =
 --
 -- deleteAt :: Int -> SetWith k a -> SetWith k a
 -- deleteAt i (SetWith (f,xs)) = SetWith (f, Map.deleteAt i xs)
---
+
 -- -- * Map
 --
--- map :: (a -> b) -> (b -> a) -> SetWith k a -> SetWith k b
--- map f g (SetWith (p,xs)) = SetWith (p . g, Map.map f xs)
---
--- mapMaybe :: (a -> Maybe b) -> (b -> a) -> SetWith k a -> SetWith k b
--- mapMaybe f g (SetWith (p,xs)) = SetWith (p . g, Map.mapMaybe f xs)
---
+map :: Functor c => (a -> b) -> (b -> a) -> SetsWith k c a -> SetsWith k c b
+map f g (SetsWith (p,xs)) = SetsWith (p . g, Map.map (fmap f) xs)
+
+mapMaybe :: ( Eq (c b)
+            , Sets.HasEmpty (c b)
+            , Wither.Witherable c
+            ) => (a -> Maybe b) -> (b -> a) -> SetsWith k c a -> SetsWith k c b
+mapMaybe f g (SetsWith (p,xs)) = SetsWith
+  (p . g, Map.filter (/= Sets.empty) $ Map.map (Wither.mapMaybe f) xs)
+
 -- -- * Folds
 --
 -- foldr :: (a -> b -> b) -> b -> SetWith k a -> b
