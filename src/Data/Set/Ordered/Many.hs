@@ -19,6 +19,7 @@ import Control.Monad.Fix
 -- | Ordered sets with duplicate elements.
 newtype OMSet a = OMSet {unOMSet :: [a]}
   deriving ( Eq
+           , Show
            , Functor
            , Applicative
            , Monad
@@ -29,13 +30,6 @@ newtype OMSet a = OMSet {unOMSet :: [a]}
 
 instance Mergeable OMSet where
   mergeMap f (OMSet xs) = mergeMap f xs
-
-instance Show a => Show (OMSet a) where
-  show (OMSet xs) = "OMSet {" ++ show' xs ++ "}"
-    where
-      show' [] = ""
-      show' [x] = show x
-      show' (x:xs') = show x ++ ", " ++ show' xs'
 
 -- * Operators
 

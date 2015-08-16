@@ -7,6 +7,7 @@ module Data.Set.Unordered.Many where
 
 import Data.Mergeable
 import Data.List as List hiding (delete)
+import qualified Data.List as List
 import Data.Maybe (fromJust, isJust, mapMaybe)
 
 
@@ -18,10 +19,20 @@ import Data.Maybe (fromJust, isJust, mapMaybe)
 
 -- | Pronounced "Unordered Many Set"
 newtype UMSet a = UMSet {unUMSet :: [a]}
-  deriving (Functor)
+  deriving (Functor, Show)
 
 instance Mergeable UMSet where
   mergeMap f (UMSet xs) = mergeMap f xs
+
+instance Eq a => Eq (UMSet a) where
+  (UMSet xs) == (UMSet ys) = case foldr go (Just xs) ys of
+    Just [] -> True
+    _       -> False
+    where
+      go _ Nothing = Nothing
+      go _ (Just []) = Nothing
+      go y (Just xs') | y `elem` xs' = Just $ List.delete y xs'
+                      | otherwise = Nothing
 
 -- * Operators
 

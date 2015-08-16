@@ -31,6 +31,8 @@ instance Functor c => Invariant (SetsWith k c) where
 instance Fold.Foldable c => Fold.Foldable (SetsWith k c) where
   foldr = Data.Set.Ordered.Many.With.foldr
 
+instance (Eq (c a), Eq k) => Eq (SetsWith k c a) where
+  (SetsWith (_,xs)) == (SetsWith (_,ys)) = xs == ys
 
 instance ( Ord k
          , Sets.HasUnion (c a)

@@ -14,7 +14,8 @@
 
 module Data.Set.Class where
 
-import Prelude (Eq (..), Ord, Int, Bool (..), (&&), (||), ($), (.), not, const)
+import Prelude ( Eq (..), Ord (..), Int, Bool (..), (&&), (||), ($), (.), not, const
+               , Show (..))
 import Data.Foldable as Fold
 import Data.Monoid as Monoid
 import Data.Commutative as Comm
@@ -38,8 +39,11 @@ import qualified Data.Set.Ordered.Unique.With as SetWith
 
 
 newtype Union a        = Union {unUnion :: a}
+  deriving (Show, Eq)
 newtype Intersection a = Intersection {unIntersection :: a}
+  deriving (Show, Eq)
 newtype XUnion a       = XUnion {unXUnion :: a}
+  deriving (Show, Eq)
 
 class HasUnion s where
   union :: s -> s -> s

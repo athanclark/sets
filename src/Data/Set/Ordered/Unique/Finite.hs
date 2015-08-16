@@ -5,6 +5,7 @@ import qualified Data.Set as Set
 
 newtype FiniteSet a = FiniteSet
   { unFiniteSet :: (Set.Set a, Set.Set a) }
+  deriving (Eq, Show)
 
 -- * Operators
 

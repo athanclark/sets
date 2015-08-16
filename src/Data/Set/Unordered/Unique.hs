@@ -16,10 +16,20 @@ import Data.Maybe (fromJust, isJust, mapMaybe)
 
 -- | Pronounced "Unordered Unique Set"
 newtype UUSet a = UUSet {unUUSet :: [a]}
-  deriving (Functor)
+  deriving (Functor, Show)
 
 instance Mergeable UUSet where
   mergeMap f (UUSet xs) = mergeMap f xs
+
+instance Eq a => Eq (UUSet a) where
+  (UUSet xs) == (UUSet ys) = case foldr go (Just xs) ys of
+    Just [] -> True
+    _       -> False
+    where
+      go _ Nothing = Nothing
+      go _ (Just []) = Nothing
+      go y (Just xs') | y `elem` xs' = Just $ List.delete y xs'
+                      | otherwise = Nothing
 
 -- * Operators
 
