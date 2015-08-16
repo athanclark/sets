@@ -45,6 +45,14 @@ Test-Suite spec
                       , tasty-hunit
                       , QuickCheck
                       , quickcheck-instances
+                      , containers
+                      , unordered-containers
+                      , hashable
+                      , commutative
+                      , contravariant
+                      , discrimination
+                      , invariant
+                      , witherable
 
 Source-Repository head
   Type:                 git

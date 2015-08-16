@@ -6,7 +6,8 @@
 module Data.Set.Ordered.Many.With where
 
 import Prelude (($), (.), Eq (..), Ord (..), Maybe (..)
-               , Bool (..), (&&), (||), and, not, Functor (..), Int)
+               , Bool (..), (&&), (||), and, not, Functor (..), Int
+               , snd)
 import qualified Data.Set.Class as Sets
 import qualified Data.Set.Ordered.Many as OM
 import qualified Data.Set.Ordered.Unique.With as OU
@@ -15,6 +16,7 @@ import qualified Data.Witherable as Wither
 
 import Data.Monoid
 import Data.Functor.Invariant
+import Data.Foldable as Fold
 import Control.Applicative hiding (empty)
 
 
@@ -183,65 +185,81 @@ mapMaybe f g (SetsWith (p,xs)) = SetsWith
   (p . g, Map.filter (/= Sets.empty) $ Map.map (Wither.mapMaybe f) xs)
 
 -- -- * Folds
---
--- foldr :: (a -> b -> b) -> b -> SetWith k a -> b
--- foldr f acc (SetWith (_,xs)) = Map.foldr f acc xs
---
--- foldl :: (b -> a -> b) -> b -> SetWith k a -> b
--- foldl f acc (SetWith (_,xs)) = Map.foldl f acc xs
---
+
+foldr :: Fold.Foldable c => (a -> b -> b) -> b -> SetsWith k c a -> b
+foldr f acc (SetsWith (_,xs)) = Map.foldr go acc xs
+  where
+    go cs acc' = Fold.foldr f acc' cs
+
+foldl :: Fold.Foldable c => (b -> a -> b) -> b -> SetsWith k c a -> b
+foldl f acc (SetsWith (_,xs)) = Map.foldl go acc xs
+  where
+    go = Fold.foldl f
+
 -- -- ** Strict Folds
---
--- foldr' :: (a -> b -> b) -> b -> SetWith k a -> b
--- foldr' f acc (SetWith (_,xs)) = Map.foldr' f acc xs
---
--- foldl' :: (b -> a -> b) -> b -> SetWith k a -> b
--- foldl' f acc (SetWith (_,xs)) = Map.foldl' f acc xs
---
+
+foldr' :: Fold.Foldable c => (a -> b -> b) -> b -> SetsWith k c a -> b
+foldr' f acc (SetsWith (_,xs)) = Map.foldr' go acc xs
+  where
+    go cs acc' = Fold.foldr' f acc' cs
+
+foldl' :: Fold.Foldable c => (b -> a -> b) -> b -> SetsWith k c a -> b
+foldl' f acc (SetsWith (_,xs)) = Map.foldl' go acc xs
+  where
+    go = Fold.foldl' f
+
 -- -- ** Legacy Fold
---
--- fold :: (a -> b -> b) -> b -> SetWith k a -> b
--- fold f acc (SetWith (_,xs)) = Map.fold f acc xs
---
+
+fold :: Fold.Foldable c => (a -> b -> b) -> b -> SetsWith k c a -> b
+fold f acc (SetsWith (_,xs)) = Map.fold go acc xs
+  where
+    go cs acc' = Fold.foldr f acc' cs
+
 -- -- * Min/Max
---
--- findMin :: SetWith k a -> a
--- findMin = snd . Map.findMin . snd . unSetWith
---
--- findMax :: SetWith k a -> a
--- findMax = snd . Map.findMax . snd . unSetWith
---
--- deleteMin :: SetWith k a -> SetWith k a
--- deleteMin (SetWith (f,xs)) = SetWith (f, Map.deleteMin xs)
---
--- deleteMax :: SetWith k a -> SetWith k a
--- deleteMax (SetWith (f,xs)) = SetWith (f, Map.deleteMax xs)
---
--- deleteFindMin :: SetWith k a -> (a, SetWith k a)
--- deleteFindMin (SetWith (f,xs)) = let ((_,l),zs) = Map.deleteFindMin xs
---                                  in (l, SetWith (f,zs))
---
--- deleteFindMax :: SetWith k a -> (a, SetWith k a)
--- deleteFindMax (SetWith (f,xs)) = let ((_,l),zs) = Map.deleteFindMax xs
---                                  in (l, SetWith (f,zs))
---
--- minView :: SetWith k a -> Maybe (a, SetWith k a)
--- minView (SetWith (f,xs)) = (\(l,a) -> (l, SetWith (f,a))) <$> Map.minView xs
---
--- maxView :: SetWith k a -> Maybe (a, SetWith k a)
--- maxView (SetWith (f,xs)) = (\(l,a) -> (l, SetWith (f,a))) <$> Map.maxView xs
---
+
+findMin :: (Ord a, Fold.Foldable c) => SetsWith k c a -> a
+findMin (SetsWith (_,xs)) = Fold.minimum $ snd $ Map.findMin xs
+
+findMax :: (Ord a, Fold.Foldable c) => SetsWith k c a -> a
+findMax (SetsWith (_,xs)) = Fold.maximum $ snd $ Map.findMax xs
+
+-- | Deletes __entire set__ with minimum key
+deleteMin :: SetsWith k c a -> SetsWith k c a
+deleteMin (SetsWith (f,xs)) = SetsWith (f, Map.deleteMin xs)
+
+deleteMax :: SetsWith k c a -> SetsWith k c a
+deleteMax (SetsWith (f,xs)) = SetsWith (f, Map.deleteMax xs)
+
+deleteFindMin :: SetsWith k c a -> (c a, SetsWith k c a)
+deleteFindMin (SetsWith (f,xs)) = let ((_,l),zs) = Map.deleteFindMin xs
+                                  in (l, SetsWith (f,zs))
+
+deleteFindMax :: SetsWith k c a -> (c a, SetsWith k c a)
+deleteFindMax (SetsWith (f,xs)) = let ((_,l),zs) = Map.deleteFindMax xs
+                                  in (l, SetsWith (f,zs))
+
+minView :: SetsWith k c a -> Maybe (c a, SetsWith k c a)
+minView (SetsWith (f,xs)) = (\(l,a) -> (l, SetsWith (f,a))) <$> Map.minView xs
+
+maxView :: SetsWith k c a -> Maybe (c a, SetsWith k c a)
+maxView (SetsWith (f,xs)) = (\(l,a) -> (l, SetsWith (f,a))) <$> Map.maxView xs
+
 -- -- * Conversion
---
--- elems :: SetWith k a -> [a]
--- elems (SetWith (_,xs)) = Map.elems xs
---
--- toList :: SetWith k a -> (a -> k, [a])
--- toList (SetWith (f,xs)) = (f, Map.elems xs)
---
--- fromList :: Ord k => (a -> k) -> [a] -> SetWith k a
--- fromList f = List.foldr insert $ empty f
---
+
+elems :: ( Sets.HasUnion (c a)
+         , Sets.HasEmpty (c a)
+         ) => SetsWith k c a -> c a
+elems (SetsWith (_,xs)) = Sets.unions $ Map.elems xs
+
+toList :: SetsWith k c a -> (a -> k, [c a])
+toList (SetsWith (f,xs)) = (f, Map.elems xs)
+
+fromList :: ( Ord k
+            , Sets.HasSingleton a (c a)
+            , Sets.HasUnion (c a)
+            ) => (a -> k) -> [a] -> SetsWith k c a
+fromList f = Fold.foldr insert $ empty f
+
 -- -- * Ordered List
 --
 -- toAscList :: SetWith k a -> [a]

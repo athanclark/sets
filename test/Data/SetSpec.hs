@@ -1,6 +1,6 @@
 module Data.SetSpec (spec) where
 
-import Data.Set
+import Data.Set.Class
 
 import Test.Tasty
 import Test.Tasty.QuickCheck as QC
