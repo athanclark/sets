@@ -7,7 +7,7 @@ module Data.Set.Ordered.Many.With where
 
 import Prelude (($), (.), Eq (..), Ord (..), Maybe (..)
                , Bool (..), (&&), (||), and, not, Functor (..), Int
-               , snd)
+               , snd, zip, String (..), Show (..))
 import qualified Data.Set.Class as Sets
 import qualified Data.Set.Ordered.Many as OM
 import qualified Data.Set.Ordered.Unique.With as OU
@@ -261,23 +261,25 @@ fromList :: ( Ord k
 fromList f = Fold.foldr insert $ empty f
 
 -- -- * Ordered List
---
--- toAscList :: SetWith k a -> [a]
--- toAscList (SetWith (_,xs)) = snd <$> Map.toAscList xs
---
--- toDescList :: SetWith k a -> [a]
--- toDescList (SetWith (_,xs)) = snd <$> Map.toDescList xs
---
--- fromAscList :: Eq k => (a -> k) -> [a] -> SetWith k a
--- fromAscList f xs = SetWith (f, Map.fromAscList $ (f <$> xs) `zip` xs)
---
--- fromDistinctAscList :: (a -> k) -> [a] -> SetWith k a
--- fromDistinctAscList f xs = SetWith (f, Map.fromDistinctAscList $ (f <$> xs) `zip` xs)
---
+
+toAscList :: SetsWith k c a -> [c a]
+toAscList (SetsWith (_,xs)) = snd <$> Map.toAscList xs
+
+toDescList :: SetsWith k c a -> [c a]
+toDescList (SetsWith (_,xs)) = snd <$> Map.toDescList xs
+
+fromAscList :: ( Eq k
+               , Sets.HasSingleton a (c a)
+               ) => (a -> k) -> [a] -> SetsWith k c a
+fromAscList f xs = SetsWith (f, Map.fromAscList $ (f <$> xs) `zip` fmap Sets.singleton xs)
+
+fromDistinctAscList :: Sets.HasSingleton a (c a) => (a -> k) -> [a] -> SetsWith k c a
+fromDistinctAscList f xs = SetsWith (f, Map.fromDistinctAscList $ (f <$> xs) `zip` fmap Sets.singleton xs)
+
 -- -- * Debugging
---
--- showTree :: (Show k, Show a) => SetWith k a -> String
--- showTree (SetWith (_,xs)) = Map.showTree xs
---
--- showTreeWith :: (Show k, Show a) => (k -> a -> String) -> Bool -> Bool -> SetWith k a -> String
--- showTreeWith f a b (SetWith (_,xs)) = Map.showTreeWith f a b xs
+
+showTree :: (Show k, Show (c a)) => SetsWith k c a -> String
+showTree (SetsWith (_,xs)) = Map.showTree xs
+
+showTreeWith :: (k -> c a -> String) -> Bool -> Bool -> SetsWith k c a -> String
+showTreeWith f a b (SetsWith (_,xs)) = Map.showTreeWith f a b xs
