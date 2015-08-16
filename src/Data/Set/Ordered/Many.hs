@@ -35,7 +35,7 @@ instance Show a => Show (OMSet a) where
     where
       show' [] = ""
       show' [x] = show x
-      show' (x:xs) = show x ++ ", " ++ show' xs
+      show' (x:xs') = show x ++ ", " ++ show' xs'
 
 -- * Operators
 
@@ -65,8 +65,8 @@ lookup :: Eq a => a -> OMSet a -> Maybe a
 lookup x (OMSet xs) = lookup' x xs
   where
     lookup' _ [] = Nothing
-    lookup' x (y:ys) | x == y    = Just y
-                     | otherwise = lookup' x ys
+    lookup' x' (y:ys) | x == y    = Just y
+                      | otherwise = lookup' x' ys
 
 -- | /O(n*m)/
 isSubsetOf :: Eq a => OMSet a -> OMSet a -> Bool
@@ -99,9 +99,9 @@ singleton x = OMSet [x]
 insert :: Ord a => a -> OMSet a -> OMSet a
 insert x (OMSet xs) = OMSet $ insert' x xs
   where
-    insert' x [] = [x]
-    insert' x (a:as) | x > a = a : insert' x as
-                     | otherwise = x:a:as
+    insert' x' [] = [x']
+    insert' x' (a:as) | x' > a = a : insert' x' as
+                      | otherwise = x':a:as
 
 -- | /O(n)/
 delete :: Eq a => a -> OMSet a -> OMSet a

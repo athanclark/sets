@@ -1,13 +1,15 @@
 {-# LANGUAGE
     NoImplicitPrelude
-  , GeneralizedNewtypeDeriving
+  , FlexibleContexts
+  , FlexibleInstances
+  , MultiParamTypeClasses
   #-}
 
 module Data.Set.Ordered.Many.With where
 
 import Prelude (($), (.), Eq (..), Ord (..), Maybe (..)
                , Bool (..), (&&), (||), and, not, Functor (..), Int
-               , snd, zip, String (..), Show (..))
+               , fst, snd, zip, String (..), Show (..))
 import qualified Data.Set.Class as Sets
 import qualified Data.Set.Ordered.Many as OM
 import qualified Data.Set.Ordered.Unique.With as OU
@@ -15,6 +17,7 @@ import qualified Data.Map as Map
 import qualified Data.Witherable as Wither
 
 import Data.Monoid
+import Data.Maybe (isJust)
 import Data.Functor.Invariant
 import Data.Foldable as Fold
 import Control.Applicative hiding (empty)
@@ -25,9 +28,65 @@ newtype SetsWith k c a = SetsWith {unSetsWith :: (a -> k, Map.Map k (c a))}
 instance Functor c => Invariant (SetsWith k c) where
   invmap = map
 
--- instance Fold.Foldable (SetWith k) where
---   foldr = Data.Set.Ordered.Unique.With.foldr
+instance Fold.Foldable c => Fold.Foldable (SetsWith k c) where
+  foldr = Data.Set.Ordered.Many.With.foldr
 
+
+instance ( Ord k
+         , Sets.HasUnion (c a)
+         ) => Sets.HasUnion (SetsWith k c a) where
+  union = union
+
+instance ( Ord k
+         , Eq (c a)
+         , Sets.HasEmpty (c a)
+         , Sets.HasDifference (c a)
+         ) => Sets.HasDifference (SetsWith k c a) where
+  difference = difference
+
+instance ( Ord k
+          , Eq (c a)
+          , Sets.HasEmpty (c a)
+         , Sets.HasIntersection (c a)
+         ) => Sets.HasIntersection (SetsWith k c a) where
+  intersection = intersection
+
+instance ( Ord k
+         , Sets.HasUnion (c a)
+         , Sets.HasSingleton a (c a)
+         ) => Sets.HasSingletonWith (a -> k) a (SetsWith k c a) where
+  singletonWith = singleton
+
+instance ( Ord k
+         , Sets.HasUnion (c a)
+         , Sets.HasSingleton a (c a)
+         ) => Sets.HasInsert a (SetsWith k c a) where
+  insert = insert
+
+instance ( Ord k
+         , Eq (c a)
+         , Sets.HasEmpty (c a)
+         , Sets.HasDelete a (c a)
+         ) => Sets.HasDelete a (SetsWith k c a) where
+  delete = delete
+
+instance Sets.HasEmptyWith (a -> k) (SetsWith k c a) where
+  emptyWith = empty
+
+instance Sets.HasSize (SetsWith k c a) where
+  size = size
+
+instance ( Ord k
+         , Eq (c a)
+         , Sets.CanBeSubset (c a)
+         ) => Sets.CanBeSubset (SetsWith k c a) where
+  isSubsetOf = isSubsetOf
+
+instance ( Ord k
+         , Eq (c a)
+         , Sets.CanBeSubset (c a)
+         ) => Sets.CanBeProperSubset (SetsWith k c a) where
+  isProperSubsetOf = isProperSubsetOf
 
 -- * Operators
 
@@ -51,31 +110,31 @@ member x (SetsWith (f,xs)) = Map.member (f x) xs -- Depends on eager pruning
 notMember :: Ord k => a -> SetsWith k c a -> Bool
 notMember x = not . member x
 
--- lookupLT :: Ord k => a -> SetsWith k c a -> Maybe a
--- lookupLT x (SetWith (f,xs)) = snd <$> Map.lookupLT (f x) xs
---
--- lookupGT :: Ord k => a -> SetWith k a -> Maybe a
--- lookupGT x (SetWith (f,xs)) = snd <$> Map.lookupGT (f x) xs
---
--- lookupLE :: Ord k => a -> SetWith k a -> Maybe a
--- lookupLE x (SetWith (f,xs)) = snd <$> Map.lookupLE (f x) xs
---
--- lookupGE :: Ord k => a -> SetWith k a -> Maybe a
--- lookupGE x (SetWith (f,xs)) = snd <$> Map.lookupGE (f x) xs
+lookupLT :: Ord k => a -> SetsWith k c a -> Maybe (c a)
+lookupLT x (SetsWith (f,xs)) = snd <$> Map.lookupLT (f x) xs
+
+lookupGT :: Ord k => a -> SetsWith k c a -> Maybe (c a)
+lookupGT x (SetsWith (f,xs)) = snd <$> Map.lookupGT (f x) xs
+
+lookupLE :: Ord k => a -> SetsWith k c a -> Maybe (c a)
+lookupLE x (SetsWith (f,xs)) = snd <$> Map.lookupLE (f x) xs
+
+lookupGE :: Ord k => a -> SetsWith k c a -> Maybe (c a)
+lookupGE x (SetsWith (f,xs)) = snd <$> Map.lookupGE (f x) xs
 
 isSubsetOf :: ( Ord k
               , Eq (c a)
               , Sets.CanBeSubset (c a)
               ) => SetsWith k c a -> SetsWith k c a -> Bool
 isSubsetOf (SetsWith (_,xs)) (SetsWith (_,ys)) = Map.isSubmapOf xs ys &&
-  and (getZipList $ (Sets.isSubsetOf) <$> (ZipList $ Map.elems $ xs `Map.intersection` ys)
-                                      <*> (ZipList $ Map.elems $ ys `Map.intersection` xs))
+  and (getZipList $ Sets.isSubsetOf <$> (ZipList $ Map.elems $ xs `Map.intersection` ys)
+                                    <*> (ZipList $ Map.elems $ ys `Map.intersection` xs))
 
 isProperSubsetOf :: ( Ord k
                     , Eq (c a)
                     , Sets.CanBeSubset (c a)
                     ) => SetsWith k c a -> SetsWith k c a -> Bool
-isProperSubsetOf xss@(SetsWith (_,xs)) yss@(SetsWith (_,ys)) =
+isProperSubsetOf xss yss =
   xss `isSubsetOf` yss && size xss < size yss
 
 -- * Construction
@@ -142,38 +201,38 @@ filter :: ( Eq (c a)
 filter p (SetsWith (f,xs)) = SetsWith (f, Map.filter (/= Sets.empty) $
   Map.map (Wither.filter p) xs)
 
--- partition :: (a -> Bool) -> SetWith k a -> (SetWith k a, SetWith k a)
--- partition p (SetWith (f,xs)) = let zs = Map.partition p xs
---                                in (SetWith (f, fst zs), SetWith (f, snd zs))
---
--- split :: Ord k => a -> SetWith k a -> (SetWith k a, SetWith k a)
--- split x (SetWith (f,xs)) = let zs = Map.split (f x) xs
---                            in (SetWith (f, fst zs), SetWith (f, snd zs))
---
--- splitMember :: Ord k => a -> SetWith k a -> (SetWith k a, Bool, SetWith k a)
--- splitMember x (SetWith (f,xs)) = let (l,b,r) = Map.splitLookup (f x) xs
---                                  in (SetWith (f,l), isJust b, SetWith (f,r))
---
--- splitRoot :: Ord k => SetWith k a -> [SetWith k a]
--- splitRoot (SetWith (f,xs)) = let xss = Map.splitRoot xs
---                              in fmap (\a -> SetWith (f,a)) xss
+partition :: (c a -> Bool) -> SetsWith k c a -> (SetsWith k c a, SetsWith k c a)
+partition p (SetsWith (f,xs)) = let zs = Map.partition p xs
+                                in (SetsWith (f, fst zs), SetsWith (f, snd zs))
+
+split :: Ord k => a -> SetsWith k c a -> (SetsWith k c a, SetsWith k c a)
+split x (SetsWith (f,xs)) = let zs = Map.split (f x) xs
+                            in (SetsWith (f, fst zs), SetsWith (f, snd zs))
+
+splitMember :: Ord k => a -> SetsWith k c a -> (SetsWith k c a, Bool, SetsWith k c a)
+splitMember x (SetsWith (f,xs)) = let (l,b,r) = Map.splitLookup (f x) xs
+                                  in (SetsWith (f,l), isJust b, SetsWith (f,r))
+
+splitRoot :: Ord k => SetsWith k c a -> [SetsWith k c a]
+splitRoot (SetsWith (f,xs)) = let xss = Map.splitRoot xs
+                              in fmap (\a -> SetsWith (f,a)) xss
 
 -- -- * Indexed
 
--- lookupIndex :: Ord k => a -> SetsWith k c a -> Maybe Int
--- lookupIndex x (SetWith (f,xs)) = Map.lookupIndex (f x) xs
---
--- findIndex :: Ord k => a -> SetWith k a -> Int
--- findIndex x (SetWith (f,xs)) = Map.findIndex (f x) xs
---
--- elemAt :: Int -> SetWith k a -> a
--- elemAt i (SetWith (_,xs)) = snd $ Map.elemAt i xs
---
--- deleteAt :: Int -> SetWith k a -> SetWith k a
--- deleteAt i (SetWith (f,xs)) = SetWith (f, Map.deleteAt i xs)
+lookupIndex :: Ord k => a -> SetsWith k c a -> Maybe Int
+lookupIndex x (SetsWith (f,xs)) = Map.lookupIndex (f x) xs
+
+findIndex :: Ord k => a -> SetsWith k c a -> Int
+findIndex x (SetsWith (f,xs)) = Map.findIndex (f x) xs
+
+setAt :: Int -> SetsWith k c a -> c a
+setAt i (SetsWith (_,xs)) = snd $ Map.elemAt i xs
+
+deleteAt :: Int -> SetsWith k c a -> SetsWith k c a
+deleteAt i (SetsWith (f,xs)) = SetsWith (f, Map.deleteAt i xs)
 
 -- -- * Map
---
+
 map :: Functor c => (a -> b) -> (b -> a) -> SetsWith k c a -> SetsWith k c b
 map f g (SetsWith (p,xs)) = SetsWith (p . g, Map.map (fmap f) xs)
 

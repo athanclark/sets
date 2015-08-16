@@ -3,12 +3,15 @@
   , NoImplicitPrelude
   #-}
 
-module Data.Set.Ordered.Unique.With where
 
 -- | Orient the ordering of your set by a different index, by first supplying a
 -- function @(a -> k)@ to weigh each element. This module simply leverages
 -- @Data.Map@, and does not use a novel data type.
+--
+-- Note: This data type can only have one element per distinguished weight. For
+-- oriented multisets, use @Data.Set.Ordered.Many.With.SetsWith@.
 
+module Data.Set.Ordered.Unique.With where
 
 import Prelude (Show, String, Eq, Ord, Bool, Int, Maybe, fmap, not, fst, snd, zip, (.), ($))
 import qualified Data.Map as Map
@@ -217,5 +220,5 @@ fromDistinctAscList f xs = SetWith (f, Map.fromDistinctAscList $ (f <$> xs) `zip
 showTree :: (Show k, Show a) => SetWith k a -> String
 showTree (SetWith (_,xs)) = Map.showTree xs
 
-showTreeWith :: (Show k, Show a) => (k -> a -> String) -> Bool -> Bool -> SetWith k a -> String
+showTreeWith :: (k -> a -> String) -> Bool -> Bool -> SetWith k a -> String
 showTreeWith f a b (SetWith (_,xs)) = Map.showTreeWith f a b xs

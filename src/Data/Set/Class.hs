@@ -60,6 +60,9 @@ instance (HasUnion s, HasEmpty s) => Monoid.Monoid (Union s) where
 class HasDifference s where
   difference :: s -> s -> s
 
+(\\) :: HasDifference s => s -> s -> s
+(\\) = difference
+
 class HasIntersection s where
   intersection :: s -> s -> s
 
