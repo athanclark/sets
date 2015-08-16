@@ -318,7 +318,8 @@ toList (SetsWith (f,xs)) = (f, Map.elems xs)
 fromList :: ( Ord k
             , Sets.HasSingleton a (c a)
             , Sets.HasUnion (c a)
-            ) => (a -> k) -> [a] -> SetsWith k c a
+            , Fold.Foldable f
+            ) => (a -> k) -> f a -> SetsWith k c a
 fromList f = Fold.foldr insert $ empty f
 
 -- -- * Ordered List

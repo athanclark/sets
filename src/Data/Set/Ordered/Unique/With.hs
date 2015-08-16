@@ -198,7 +198,7 @@ elems (SetWith (_,xs)) = Map.elems xs
 toList :: SetWith k a -> (a -> k, [a])
 toList (SetWith (f,xs)) = (f, Map.elems xs)
 
-fromList :: Ord k => (a -> k) -> [a] -> SetWith k a
+fromList :: (Ord k, Fold.Foldable f) => (a -> k) -> f a -> SetWith k a
 fromList f = List.foldr insert $ empty f
 
 -- * Ordered List
