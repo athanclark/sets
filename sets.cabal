@@ -1,5 +1,5 @@
 Name:                   sets
-Version:                0.0.4.1
+Version:                0.0.4.2
 Author:                 Athan Clark <athan.clark@gmail.com>
 Maintainer:             Athan Clark <athan.clark@gmail.com>
 License:                MIT
@@ -31,6 +31,10 @@ Library
                       , discrimination
                       , invariant
                       , witherable
+                      , mtl
+                      , transformers
+                      , transformers-base
+                      , QuickCheck
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0
@@ -53,6 +57,9 @@ Test-Suite spec
                       , discrimination
                       , invariant
                       , witherable
+                      , mtl
+                      , transformers
+                      , transformers-base
 
 Source-Repository head
   Type:                 git

@@ -118,6 +118,12 @@ class HasInsertWith k a s where
 class HasEmpty s where
   empty :: s
 
+fromFoldable :: ( Foldable f
+                , HasInsert a s
+                , HasEmpty s
+                ) => f a -> s
+fromFoldable = foldr insert empty
+
 instance (Commutative (Union s), HasEmpty s) => CommutativeId (Union s) where
   cempty = empty
 

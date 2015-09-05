@@ -1,6 +1,8 @@
 {-# LANGUAGE
     GeneralizedNewtypeDeriving
   , DeriveFunctor
+  , FlexibleContexts
+  , MultiParamTypeClasses
   #-}
 
 -- | Unique, unordered sets. The semantics for "unordering" is based on the idea
@@ -12,6 +14,10 @@ module Data.Set.Unordered.Unique where
 import Data.Mergeable
 import Data.List as List
 import Data.Maybe (fromJust, isJust, mapMaybe)
+import Control.Monad.State
+import Control.Monad.Base
+
+import Test.QuickCheck
 
 
 -- | Pronounced "Unordered Unique Set"
@@ -30,6 +36,23 @@ instance Eq a => Eq (UUSet a) where
       go _ (Just []) = Nothing
       go y (Just xs') | y `elem` xs' = Just $ List.delete y xs'
                       | otherwise = Nothing
+
+instance MonadBase Gen Gen where
+  liftBase = id
+
+instance (Arbitrary a, Eq a) => Arbitrary (UUSet a) where
+  arbitrary = UUSet <$> sized go
+    where go s = evalStateT (replicateM s go') []
+          go' :: ( MonadState [a] m
+                , MonadBase Gen m
+                , Eq a
+                , Arbitrary a
+                ) => m a
+          go' = do
+            soFar <- get
+            x <- liftBase $ arbitrary `suchThat` (`notElem` soFar)
+            put $ x:soFar
+            return x
 
 -- * Operators
 

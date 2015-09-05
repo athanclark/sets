@@ -159,15 +159,6 @@ instance Arbitrary a => Arbitrary (Intersection a) where
 instance Arbitrary a => Arbitrary (XUnion a) where
   arbitrary = XUnion <$> arbitrary
 
-instance Arbitrary a => Arbitrary (UU.UUSet a) where
-  arbitrary = (UU.UUSet . unUnder20) <$> arbitrary
-
-instance Arbitrary a => Arbitrary (UM.UMSet a) where
-  arbitrary = (UM.UMSet . unUnder20) <$> arbitrary
-
-instance Arbitrary a => Arbitrary (OM.OMSet a) where
-  arbitrary = (OM.OMSet . unUnder20) <$> arbitrary
-
 ---------
 
 newtype Under20 a = Under20 {unUnder20 :: [a]}

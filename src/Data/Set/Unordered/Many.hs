@@ -9,6 +9,9 @@ import Data.Mergeable
 import Data.List as List hiding (delete)
 import qualified Data.List as List
 import Data.Maybe (fromJust, isJust, mapMaybe)
+import Control.Monad
+
+import Test.QuickCheck
 
 
 -- | Unordered sets with duplicate elements. The semantics for "unordering" is based on the idea
@@ -33,6 +36,11 @@ instance Eq a => Eq (UMSet a) where
       go _ (Just []) = Nothing
       go y (Just xs') | y `elem` xs' = Just $ List.delete y xs'
                       | otherwise = Nothing
+
+instance Arbitrary a => Arbitrary (UMSet a) where
+  arbitrary = UMSet <$> sized go
+    where
+      go s = replicateM s arbitrary
 
 -- * Operators
 

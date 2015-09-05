@@ -3,6 +3,8 @@
   , DeriveFunctor
   , DeriveFoldable
   , DeriveTraversable
+  , FlexibleContexts
+  , MultiParamTypeClasses
   #-}
 
 module Data.Set.Ordered.Many where
@@ -14,6 +16,10 @@ import Data.Traversable
 import Data.Discrimination as Disc
 import Data.Maybe (fromJust, isJust, mapMaybe)
 import Control.Monad.Fix
+import Control.Monad.State
+import Control.Monad.Base
+
+import Test.QuickCheck
 
 
 -- | Ordered sets with duplicate elements.
@@ -30,6 +36,25 @@ newtype OMSet a = OMSet {unOMSet :: [a]}
 
 instance Mergeable OMSet where
   mergeMap f (OMSet xs) = mergeMap f xs
+
+
+instance MonadBase Gen Gen where
+  liftBase = id
+
+instance (Arbitrary a, Ord a) => Arbitrary (OMSet a) where
+  arbitrary = OMSet <$> sized go
+    where
+      go s = evalStateT (replicateM s go') Nothing
+      go' :: ( MonadState (Maybe a) m
+             , MonadBase Gen m
+             , Ord a
+             , Arbitrary a
+             ) => m a
+      go' = do
+        mprev <- get
+        x <- liftBase $ maybe arbitrary (\p -> arbitrary `suchThat` (> p)) mprev
+        put $ Just x
+        return x
 
 -- * Operators
 
