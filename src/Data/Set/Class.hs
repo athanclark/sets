@@ -18,6 +18,7 @@ import Prelude ( Eq (..), Ord (..), Int, Bool (..), (&&), (||), ($), (.), not, c
                , Show (..))
 import Data.Foldable as Fold
 import Data.Monoid as Monoid
+import Data.Key
 import Data.Commutative as Comm
 
 import qualified Data.Set as Set
@@ -31,7 +32,6 @@ import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Lazy as HashMap
 import qualified Data.Functor.Contravariant as Pred
 import qualified Data.Set.Ordered.Many as OM
-import Data.Discrimination as Disc
 import qualified Data.Set.Unordered.Many as UM
 import qualified Data.Set.Unordered.Unique as UU
 import qualified Data.Set.Ordered.Unique.Finite as OUF
@@ -123,6 +123,12 @@ fromFoldable :: ( Foldable f
                 , HasEmpty s
                 ) => f a -> s
 fromFoldable = foldr insert empty
+
+fromFoldableWith :: ( FoldableWithKey f
+                    , HasInsertWith (Key f) a s
+                    , HasEmpty s
+                    ) => f a -> s
+fromFoldableWith = foldrWithKey insertWith empty
 
 instance (Commutative (Union s), HasEmpty s) => CommutativeId (Union s) where
   cempty = empty
@@ -468,7 +474,7 @@ instance HasTotal (Pred.Predicate a) where
 
 
 -- Data.Set.Ordered.Many
-instance Disc.Sorting a => HasUnion (OM.OMSet a) where
+instance Ord a => HasUnion (OM.OMSet a) where
   union = OM.union
 
 instance Eq a => HasDifference (OM.OMSet a) where

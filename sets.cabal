@@ -1,5 +1,5 @@
 Name:                   sets
-Version:                0.0.4.2
+Version:                0.0.5
 Author:                 Athan Clark <athan.clark@gmail.com>
 Maintainer:             Athan Clark <athan.clark@gmail.com>
 License:                MIT
@@ -28,9 +28,9 @@ Library
                       , hashable
                       , commutative
                       , contravariant
-                      , discrimination
                       , invariant
                       , witherable
+                      , keys
                       , mtl
                       , transformers
                       , transformers-base
@@ -41,7 +41,7 @@ Test-Suite spec
   Default-Language:     Haskell2010
   Hs-Source-Dirs:       src
                       , test
-  Ghc-Options:          -Wall
+  Ghc-Options:          -Wall -threaded
   Main-Is:              Main.hs
   Build-Depends:        base
                       , tasty
@@ -54,12 +54,48 @@ Test-Suite spec
                       , hashable
                       , commutative
                       , contravariant
-                      , discrimination
+                      , keys
                       , invariant
                       , witherable
                       , mtl
                       , transformers
                       , transformers-base
+
+
+Benchmark bench
+  Type:                 exitcode-stdio-1.0
+  Default-Language:     Haskell2010
+  Hs-Source-Dirs:       src
+                      , bench
+  Ghc-Options:          -Wall -threaded
+  Main-Is:              Profile.hs
+  Other-Modules:        Data.Set.Class
+                        Data.Set.Ordered.Many
+                        Data.Set.Ordered.Unique.Finite
+                        Data.Set.Ordered.Unique.With
+                        Data.Set.Unordered.Many
+                        Data.Set.Unordered.Unique
+                        Data.Set.Data
+                        Data.Map.Data
+                        Data.IntSet.Data
+                        Data.IntMap.Data
+                        Data.Set.Ordered.Many.Data
+                        Data.Set.Unordered.Many.Data
+                        Data.Set.Unordered.Unique.Data
+  Build-Depends:        base
+                      , QuickCheck
+                      , containers
+                      , unordered-containers
+                      , hashable
+                      , commutative
+                      , contravariant
+                      , invariant
+                      , witherable
+                      , keys
+                      , mtl
+                      , transformers
+                      , transformers-base
+                      , criterion
 
 Source-Repository head
   Type:                 git

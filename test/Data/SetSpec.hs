@@ -74,6 +74,11 @@ spec =
       , QC.testProperty "`Data.Set.Unordered.Many`"   comXUnionUMSet
       ]
     ]
+  , testGroup "Uniqueness"
+    [ testGroup "Union"
+      [ QC.testProperty "`Data.Set.Unordered.Unique`"   uniqueUnionUUSet
+      ]
+    ]
   ]
   where
     assUnionSet :: Union (Set.Set Int) -> Union (Set.Set Int) -> Union (Set.Set Int) -> Bool
@@ -142,6 +147,12 @@ spec =
     comXUnionOMSet = commutes
     comXUnionUMSet :: XUnion (UM.UMSet Int) -> XUnion (UM.UMSet Int) -> Bool
     comXUnionUMSet = commutes
+
+    uniqueUnionUUSet :: UU.UUSet Int -> UU.UUSet Int -> Bool
+    uniqueUnionUUSet x y = noDuplicates $ UU.unUUSet $ x `union` y
+
+    noDuplicates :: Ord a => [a] -> Bool
+    noDuplicates xs = length xs == Set.size (Set.fromList xs)
 
 associates :: (Eq a, Monoid a) => a -> a -> a -> Bool
 associates x y z = x <> (y <> z) == (x <> y) <> z

@@ -13,7 +13,6 @@ import Data.Mergeable
 import Data.List as List hiding (delete)
 import Data.Foldable as Fold
 import Data.Traversable
-import Data.Discrimination as Disc
 import Data.Maybe (fromJust, isJust, mapMaybe)
 import Control.Monad.Fix
 import Control.Monad.State
@@ -52,7 +51,7 @@ instance (Arbitrary a, Ord a) => Arbitrary (OMSet a) where
              ) => m a
       go' = do
         mprev <- get
-        x <- liftBase $ maybe arbitrary (\p -> arbitrary `suchThat` (> p)) mprev
+        x <- liftBase $ maybe arbitrary (\p -> arbitrary `suchThat` (>= p)) mprev
         put $ Just x
         return x
 
@@ -119,8 +118,8 @@ insert :: Ord a => a -> OMSet a -> OMSet a
 insert x (OMSet xs) = OMSet $ insert' x xs
   where
     insert' x' [] = [x']
-    insert' x' (a:as) | x' > a = a : insert' x' as
-                      | otherwise = x':a:as
+    insert' x' (a:as) | x' <= a   = x': a:as
+                      | otherwise = a : insert' x' as
 
 -- | /O(n)/
 delete :: Eq a => a -> OMSet a -> OMSet a
@@ -128,9 +127,14 @@ delete x (OMSet xs) = OMSet $ List.filter (== x) xs
 
 -- * Combine
 
--- | /O(n+m)/
-union :: Disc.Sorting a => OMSet a -> OMSet a -> OMSet a
-union (OMSet xs) (OMSet ys) = OMSet $ Disc.sort (xs ++ ys)
+-- | /O(min n m)/
+union :: Ord a => OMSet a -> OMSet a -> OMSet a
+union (OMSet xs') (OMSet ys') = OMSet $ go xs' ys'
+  where
+    go [] ys = ys
+    go xs [] = xs
+    go (x:xs) (y:ys) | x <= y    = x : go xs (y:ys)
+                     | otherwise = y : go (x:xs) ys
 
 -- | /O(n*m)/
 difference :: Eq a => OMSet a -> OMSet a -> OMSet a
