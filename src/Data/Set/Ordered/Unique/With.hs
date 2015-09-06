@@ -13,7 +13,7 @@
 
 module Data.Set.Ordered.Unique.With where
 
-import Prelude (Show, String, Eq, Ord, Bool, Int, Maybe, fmap, not, fst, snd, zip, (.), ($))
+import Prelude (Show, String, Eq, Ord, Bool, Int, Maybe, fmap, not, fst, snd, zip, (.), ($), foldr)
 import qualified Data.Map as Map
 import qualified Data.List as List
 import Data.Maybe (isJust)
@@ -199,7 +199,7 @@ toList :: SetWith k a -> (a -> k, [a])
 toList (SetWith (f,xs)) = (f, Map.elems xs)
 
 fromList :: (Ord k, Fold.Foldable f) => (a -> k) -> f a -> SetWith k a
-fromList f = List.foldr insert $ empty f
+fromList f = Fold.foldr insert $ empty f
 
 -- * Ordered List
 
