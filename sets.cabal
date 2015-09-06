@@ -46,6 +46,14 @@ Test-Suite spec
                       , test
   Ghc-Options:          -Wall -threaded
   Main-Is:              Main.hs
+  Other-Modules:        Data.SetSpec
+                        Data.Set.Class
+                        Data.Set.Ordered.Many
+                        Data.Set.Ordered.Many.With
+                        Data.Set.Ordered.Unique.Finite
+                        Data.Set.Ordered.Unique.With
+                        Data.Set.Unordered.Many
+                        Data.Set.Unordered.Unique
   Build-Depends:        base
                       , tasty
                       , tasty-quickcheck
