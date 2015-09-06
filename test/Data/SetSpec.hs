@@ -56,7 +56,7 @@ spec =
       [ QC.testProperty "`Data.Set`"                  comIntersectionSet
       , QC.testProperty "`Data.IntSet`"               comIntersectionIntSet
       , QC.testProperty "`Data.HashSet`"              comIntersectionHashSet
-      -- , QC.testProperty "`Data.Set.Ordered.Many`"     comIntersectionOMSet
+      , QC.testProperty "`Data.Set.Ordered.Many`"     comIntersectionOMSet
       ]
     ]
   , testGroup "Symmetric Difference"
@@ -72,7 +72,7 @@ spec =
       , QC.testProperty "`Data.IntMap`"               comXUnionIntMap
       , QC.testProperty "`Data.HashSet`"              comXUnionHashSet
       , QC.testProperty "`Data.HashMap`"              comXUnionHashMap
-      -- , QC.testProperty "`Data.Set.Ordered.Many`"     comXUnionOMSet
+      , QC.testProperty "`Data.Set.Ordered.Many`"     comXUnionOMSet
       , QC.testProperty "`Data.Set.Unordered.Many`"   comXUnionUMSet
       ]
     ]
@@ -85,6 +85,11 @@ spec =
       ]
     , testGroup "Difference"
       [ QC.testProperty "`Data.Set.Unordered.Unique`"   uniqueDifferenceUUSet
+      ]
+    ]
+  , testGroup "Ordered"
+    [ testGroup "Union"
+      [ QC.testProperty "`Data.Set.Ordered.Many`" orderedUnionOMSet
       ]
     ]
   ]
