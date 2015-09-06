@@ -4,7 +4,7 @@ Author:                 Athan Clark <athan.clark@gmail.com>
 Maintainer:             Athan Clark <athan.clark@gmail.com>
 License:                MIT
 License-File:           LICENSE
-Synopsis:               Various set implementations in Haskell
+Synopsis:               Various set implementations in Haskell.
 Description:            This also includes overloaded functions for common set operations. See @Data.Set.Class@.
 Cabal-Version:          >= 1.10
 Build-Type:             Simple
