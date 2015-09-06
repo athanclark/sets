@@ -178,7 +178,7 @@ spec =
                  , Ord a
                  , Bounded a
                  ) => f a -> Bool
-    ascending = isJust . foldr (\a b -> isLess a =<< b) (Just minBound)
+    ascending = isJust . foldr (\a b -> isLess a =<< b) (Just maxBound)
       where
         isLess x y = x <$ guard (x <= y)
 

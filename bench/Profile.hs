@@ -93,6 +93,18 @@ main = defaultMain
     , bgroup "`Data.Set.Unordered.Unique`" $
         benchInsert uuset5 ([10,20,30,40,50] :: [Int])
     ]
+  , bgroup "Delete"
+    [ bgroup "`Data.Set`" $
+        benchDelete set5 ([10,20,30,40,50] :: [Int])
+    , bgroup "`Data.IntSet`" $
+        benchDelete iset5 ([10,20,30,40,50] :: [Int])
+    , bgroup "`Data.Set.Ordered.Many`" $
+        benchDelete omset5 ([10,20,30,40,50] :: [Int])
+    , bgroup "`Data.Set.Unordered.Many`" $
+        benchDelete umset5 ([10,20,30,40,50] :: [Int])
+    , bgroup "`Data.Set.Unordered.Unique`" $
+        benchDelete uuset5 ([10,20,30,40,50] :: [Int])
+    ]
   ]
 
 
@@ -126,3 +138,6 @@ benchElem act s0 ss =
 
 benchInsert :: HasInsert a s => s -> [a] -> [Benchmark]
 benchInsert = benchElem Sets.insert
+
+benchDelete :: HasDelete a s => s -> [a] -> [Benchmark]
+benchDelete = benchElem Sets.delete
