@@ -27,10 +27,13 @@ Library
                       , unordered-containers
                       , hashable
                       , commutative
+                      , composition
                       , contravariant
                       , invariant
                       , witherable
                       , keys
+                      , semigroups
+                      , semigroupoids
                       , mtl
                       , transformers
                       , transformers-base
@@ -53,7 +56,10 @@ Test-Suite spec
                       , unordered-containers
                       , hashable
                       , commutative
+                      , composition
                       , contravariant
+                      , semigroups
+                      , semigroupoids
                       , keys
                       , invariant
                       , witherable
@@ -88,9 +94,12 @@ Benchmark bench
                       , unordered-containers
                       , hashable
                       , commutative
+                      , composition
                       , contravariant
                       , invariant
                       , witherable
+                      , semigroups
+                      , semigroupoids
                       , keys
                       , mtl
                       , transformers

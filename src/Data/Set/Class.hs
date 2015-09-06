@@ -6,6 +6,9 @@
   , FlexibleContexts
   , GeneralizedNewtypeDeriving
   , StandaloneDeriving
+  , DeriveFunctor
+  , DeriveFoldable
+  , DeriveTraversable
   #-}
 
 -- | Convenience operators overloaded for arbitrary use.
@@ -15,11 +18,15 @@
 module Data.Set.Class where
 
 import Prelude ( Eq (..), Ord (..), Int, Bool (..), (&&), (||), ($), (.), not, const
-               , Show (..))
+               , Show (..), Functor (..))
 import Data.Foldable as Fold
+import Data.Traversable
+import Data.Semigroup.Foldable as Fold1
+import Data.Semigroup
 import Data.Monoid as Monoid
 import Data.Key
 import Data.Commutative as Comm
+import Data.Composition
 
 import qualified Data.Set as Set
 import qualified Data.Map as Map
@@ -38,28 +45,76 @@ import qualified Data.Set.Ordered.Unique.Finite as OUF
 import qualified Data.Set.Ordered.Unique.With as SetWith
 
 
-newtype Union a        = Union {unUnion :: a}
-  deriving (Show, Eq)
-newtype Intersection a = Intersection {unIntersection :: a}
-  deriving (Show, Eq)
-newtype XUnion a       = XUnion {unXUnion :: a}
-  deriving (Show, Eq)
+
+
+
+-- * Union
 
 class HasUnion s where
   union :: s -> s -> s
 
 unions :: ( Fold.Foldable f
-          , HasUnion s
-          , HasEmpty s
+          , Monoid (Union s)
           ) => f s -> s
-unions = foldr Data.Set.Class.union empty
+unions = unUnion . foldMap Union
+
+unions1 :: ( Fold1.Foldable1 f
+           , Semigroup (Union s)
+           ) => f s -> s
+unions1 = unUnion . foldMap1 Union
+
+
+newtype Union a = Union {unUnion :: a}
+  deriving ( Show     , Eq
+           , Ord      , Functor
+           , Foldable , Traversable
+           )
 
 instance HasUnion s => Commutative (Union s) where
   commute = union
 
-instance (HasUnion s, HasEmpty s) => Monoid.Monoid (Union s) where
+instance (HasUnion s, HasEmpty s) => Monoid (Union s) where
   mappend = union
   mempty = empty
+
+instance (HasUnion s) => Semigroup (Union s) where
+  (<>) = union
+
+
+-- * Intersection
+
+class HasIntersection s where
+  intersection :: s -> s -> s
+
+intersections :: ( Fold.Foldable f
+                 , Monoid (Intersection s)
+                 ) => f s -> s
+intersections = unIntersection . foldMap Intersection
+
+intersections1 :: ( Fold1.Foldable1 f
+                  , Semigroup (Intersection s)
+                  ) => f s -> s
+intersections1 = unIntersection . foldMap1 Intersection
+
+
+newtype Intersection a = Intersection {unIntersection :: a}
+  deriving ( Show     , Eq
+           , Ord      , Functor
+           , Foldable , Traversable
+           )
+
+instance HasIntersection s => Commutative (Intersection s) where
+  commute = intersection
+
+instance (HasIntersection s, HasTotal s) => Monoid (Intersection s) where
+  mappend = intersection
+  mempty = total
+
+instance (HasIntersection s) => Semigroup (Intersection s) where
+  (<>) = intersection
+
+
+-- ** Difference
 
 class HasDifference s where
   difference :: s -> s -> s
@@ -67,24 +122,28 @@ class HasDifference s where
 (\\) :: HasDifference s => s -> s -> s
 (\\) = difference
 
-class HasIntersection s where
-  intersection :: s -> s -> s
 
-intersections :: ( Fold.Foldable f
-                 , HasIntersection s
-                 , HasTotal s
-                 ) => f s -> s
-intersections = foldr Data.Set.Class.intersection total
-
-instance HasIntersection s => Commutative (Intersection s) where
-  commute = intersection
-
-instance (HasIntersection s, HasTotal s) => Monoid.Monoid (Intersection s) where
-  mappend = intersection
-  mempty = total
+-- ** Exclusive Union / Symmetric Difference
 
 class HasXUnion s where
   xunion :: s -> s -> s
+
+xunions :: ( Fold.Foldable f
+           , Monoid (XUnion s)
+           ) => f s -> s
+xunions = unXUnion . foldMap XUnion
+
+xunions1 :: ( Fold1.Foldable1 f
+            , Semigroup (XUnion s)
+            ) => f s -> s
+xunions1 = unXUnion . foldMap1 XUnion
+
+
+newtype XUnion a = XUnion {unXUnion :: a}
+  deriving ( Show     , Eq
+           , Ord      , Functor
+           , Foldable , Traversable
+           )
 
 instance (HasUnion s, HasIntersection s, HasDifference s) => HasXUnion s where
   xunion x y = union x y `difference` intersection x y
@@ -92,13 +151,19 @@ instance (HasUnion s, HasIntersection s, HasDifference s) => HasXUnion s where
 instance (HasXUnion s, HasUnion s, HasIntersection s, HasDifference s) => Commutative (XUnion s) where
   commute = xunion
 
-instance (HasXUnion s, HasEmpty s, HasUnion s, HasIntersection s, HasDifference s) => Monoid.Monoid (XUnion s) where
+instance (HasXUnion s, HasEmpty s, HasUnion s, HasIntersection s, HasDifference s) => Monoid (XUnion s) where
   mappend = xunion
   mempty = empty
 
+instance (HasXUnion s, HasUnion s, HasIntersection s, HasDifference s) => Semigroup (XUnion s) where
+  (<>) = xunion
+
+-- ** Complement
 
 class HasComplement s where
   complement :: s -> s
+
+-- * Per-Element
 
 class HasSingleton a s where
   singleton :: a -> s
@@ -115,20 +180,10 @@ class HasInsert a s where
 class HasInsertWith k a s where
   insertWith :: k -> a -> s -> s
 
+-- * Top and Bottom Elements
+
 class HasEmpty s where
   empty :: s
-
-fromFoldable :: ( Foldable f
-                , HasInsert a s
-                , HasEmpty s
-                ) => f a -> s
-fromFoldable = foldr insert empty
-
-fromFoldableWith :: ( FoldableWithKey f
-                    , HasInsertWith (Key f) a s
-                    , HasEmpty s
-                    ) => f a -> s
-fromFoldableWith = foldrWithKey insertWith empty
 
 instance (Commutative (Union s), HasEmpty s) => CommutativeId (Union s) where
   cempty = empty
@@ -145,14 +200,45 @@ instance (Commutative (Intersection s), HasTotal s) => CommutativeId (Intersecti
 class HasTotalWith k s where
   totalWith :: k -> s
 
+-- ** Size
+
 class HasSize s where
   size :: s -> Int
+
+-- * Relation
 
 class CanBeSubset s where
   isSubsetOf :: s -> s -> Bool
 
 class CanBeProperSubset s where
   isProperSubsetOf :: s -> s -> Bool
+
+
+-- * Generic Builders
+
+fromFoldable :: ( Fold.Foldable f
+                , HasInsert a s
+                , HasEmpty s
+                ) => f a -> s
+fromFoldable = foldr insert empty
+
+fromFoldableWithKey :: ( FoldableWithKey f
+                       , HasInsertWith (Key f) a s
+                       , HasEmpty s
+                       ) => f a -> s
+fromFoldableWithKey = foldrWithKey insertWith empty
+
+fromFoldable1 :: ( Fold1.Foldable1 f
+                 , HasSingleton a s
+                 , Semigroup (Union s)
+                 ) => f a -> s
+fromFoldable1 = unUnion . foldMap1 (Union . singleton)
+
+fromFoldable1WithKey :: ( FoldableWithKey1 f
+                        , HasSingletonWith (Key f) a s
+                        , Semigroup (Union s)
+                        ) => f a -> s
+fromFoldable1WithKey = unUnion . foldMapWithKey1 (Union .* singletonWith)
 
 
 -- Instances
