@@ -14,6 +14,7 @@ import Data.List as List hiding (delete)
 import Data.Foldable as Fold
 import Data.Traversable
 import Data.Maybe (fromJust, isJust, mapMaybe)
+import Control.Applicative
 import Control.Monad.Fix
 import Control.Monad.State
 import Control.Monad.Base
