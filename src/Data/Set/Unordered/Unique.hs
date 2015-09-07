@@ -13,7 +13,7 @@ module Data.Set.Unordered.Unique where
 
 import Data.Mergeable
 import Data.List as List
-import Data.Maybe (mapMaybe)
+import Data.Maybe (fromJust, isJust, mapMaybe)
 import Control.Monad.State
 import Control.Monad.Base
 import Control.Applicative
