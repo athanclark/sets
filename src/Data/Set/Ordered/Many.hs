@@ -13,7 +13,7 @@ import Data.Mergeable
 import Data.List as List hiding (delete)
 import Data.Foldable as Fold
 import Data.Traversable
-import Data.Maybe (fromJust, isJust, mapMaybe)
+import Data.Maybe (mapMaybe)
 import Control.Applicative
 import Control.Monad.Fix
 import Control.Monad.State
@@ -146,7 +146,7 @@ difference (OMSet xs) (OMSet ys) = OMSet $ List.foldr go [] xs
 
 -- | /O(min(n,m))/ - Combines all elements of both
 intersection :: Ord a => OMSet a -> OMSet a -> OMSet a
-intersection (OMSet xs) (OMSet ys) = OMSet $ go xs ys
+intersection (OMSet xs') (OMSet ys') = OMSet $ go xs' ys'
   where
     go [] _ = []
     go _ [] = []

@@ -129,8 +129,8 @@ isSubsetOf :: ( Ord k
               , Sets.CanBeSubset (c a)
               ) => SetsWith k c a -> SetsWith k c a -> Bool
 isSubsetOf (SetsWith (_,xs)) (SetsWith (_,ys)) = Map.isSubmapOf xs ys &&
-  and (getZipList $ Sets.isSubsetOf <$> (ZipList $ Map.elems $ xs `Map.intersection` ys)
-                                    <*> (ZipList $ Map.elems $ ys `Map.intersection` xs))
+  List.and (getZipList $ Sets.isSubsetOf <$> (ZipList $ Map.elems $ xs `Map.intersection` ys)
+                                         <*> (ZipList $ Map.elems $ ys `Map.intersection` xs))
 
 isProperSubsetOf :: ( Ord k
                     , Eq (c a)

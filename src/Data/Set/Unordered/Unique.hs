@@ -13,7 +13,7 @@ module Data.Set.Unordered.Unique where
 
 import Data.Mergeable
 import Data.List as List
-import Data.Maybe (fromJust, isJust, mapMaybe)
+import Data.Maybe (mapMaybe)
 import Control.Monad.State
 import Control.Monad.Base
 import Control.Applicative
@@ -80,7 +80,7 @@ notMember x = not . member x
 
 -- | /O(n)/
 lookup :: Eq a => a -> UUSet a -> Maybe a
-lookup x (UUSet xs) = lookup' x xs
+lookup x' (UUSet xs') = lookup' x' xs'
   where
     lookup' _ [] = Nothing
     lookup' x (y:ys) | x == y    = Just y
@@ -95,7 +95,7 @@ isSubsetOf (UUSet xs) (UUSet ys) = foldr go True xs
 
 -- | /O(n*(m^2))/
 isProperSubsetOf :: Eq a => UUSet a -> UUSet a -> Bool
-isProperSubsetOf (UUSet xs) (UUSet ys) = fst $ foldr go (True,ys) xs
+isProperSubsetOf (UUSet xs') (UUSet ys') = fst $ foldr go (True,ys') xs'
   where
     go _ (False,xs) = (False,xs)
     go _ (_,[]) = (False,[])
@@ -117,7 +117,7 @@ singleton x = UUSet [x]
 
 -- | /O(n)/
 insert :: Eq a => a -> UUSet a -> UUSet a
-insert x (UUSet xs) = UUSet $ insert' x xs
+insert x' (UUSet xs) = UUSet $ insert' x' xs
   where
     insert' x [] = [x]
     insert' x (y:ys) | x == y    = y:ys
@@ -125,9 +125,9 @@ insert x (UUSet xs) = UUSet $ insert' x xs
 
 -- | /O(n)/
 delete :: Eq a => a -> UUSet a -> UUSet a
-delete x (UUSet xs) = UUSet $ delete' x xs
+delete x' (UUSet xs) = UUSet $ delete' x' xs
   where
-    delete' x [] = []
+    delete' _ [] = []
     delete' x (y:ys) | x == y    =   ys
                      | otherwise = y:delete' x ys
 
