@@ -42,7 +42,7 @@ spec =
       , QC.testProperty "`Data.IntMap`"               assUnionIntMap
       , QC.testProperty "`Data.HashSet`"              assUnionHashSet
       , QC.testProperty "`Data.HashMap`"              assUnionHashMap
-      -- , QC.testProperty "`Data.Set.Ordered.Many`"     assUnionOMSet -- FIXME: Dead x_x
+      , QC.testProperty "`Data.Set.Ordered.Many`"     assUnionOMSet -- FIXME: Dead x_x
       , QC.testProperty "`Data.Set.Unordered.Many`"   assUnionUMSet
       , QC.testProperty "`Data.Set.Unordered.Unique`" assUnionUUSet
       ]
