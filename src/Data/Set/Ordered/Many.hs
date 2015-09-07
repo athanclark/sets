@@ -89,14 +89,14 @@ lookup x (OMSet xs) = lookup' x xs
 
 -- | /O(n*m)/
 isSubsetOf :: Eq a => OMSet a -> OMSet a -> Bool
-isSubsetOf (OMSet xs) (OMSet ys) = foldr go True xs
+isSubsetOf (OMSet xs) (OMSet ys) = List.foldr go True xs
   where
     go x b | List.elem x ys = b
            | otherwise      = False
 
 -- | /O(n*(m^3))/
 isProperSubsetOf :: Eq a => OMSet a -> OMSet a -> Bool
-isProperSubsetOf (OMSet xs) (OMSet ys) = fst $ foldr go (True,ys) xs
+isProperSubsetOf (OMSet xs) (OMSet ys) = fst $ List.foldr go (True,ys) xs
   where
     go _ (False,soFar) = (False,soFar)
     go _ (_,[]) = (False,[])
@@ -139,7 +139,7 @@ union (OMSet xs') (OMSet ys') = OMSet $ go xs' ys'
 
 -- | /O(n*m)/
 difference :: Eq a => OMSet a -> OMSet a -> OMSet a
-difference (OMSet xs) (OMSet ys) = OMSet $ foldr go [] xs
+difference (OMSet xs) (OMSet ys) = OMSet $ List.foldr go [] xs
  where
    go x soFar | List.elem x ys =   soFar
               | otherwise      = x:soFar
