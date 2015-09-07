@@ -25,6 +25,7 @@ import qualified Data.Set.Ordered.Many.With as SetsWith
 
 import Data.Monoid
 import Data.Maybe
+import Data.Foldable
 import Data.Commutative
 import Control.Applicative
 import Control.Monad
