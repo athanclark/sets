@@ -9,6 +9,7 @@ import Data.Mergeable
 import Data.List as List hiding (delete)
 import qualified Data.List as List
 import Data.Maybe (fromJust, isJust, mapMaybe)
+import Control.Applicative
 import Control.Monad
 
 import Test.QuickCheck
