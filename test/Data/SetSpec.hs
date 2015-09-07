@@ -2,6 +2,7 @@ module Data.SetSpec (spec) where
 
 import Data.Set.Class
 
+import Prelude hiding (foldr)
 import Test.Tasty
 import Test.Tasty.QuickCheck as QC
 import Test.QuickCheck
