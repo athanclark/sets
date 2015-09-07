@@ -19,7 +19,7 @@ import qualified Data.Witherable as Wither
 import Data.Monoid
 import Data.Maybe (isJust)
 import Data.Functor.Invariant
-import Data.Foldable as Fold
+import Data.Foldable as Fold hiding (and)
 import Control.Applicative hiding (empty)
 
 
@@ -129,8 +129,8 @@ isSubsetOf :: ( Ord k
               , Sets.CanBeSubset (c a)
               ) => SetsWith k c a -> SetsWith k c a -> Bool
 isSubsetOf (SetsWith (_,xs)) (SetsWith (_,ys)) = Map.isSubmapOf xs ys &&
-  List.and (getZipList $ Sets.isSubsetOf <$> (ZipList $ Map.elems $ xs `Map.intersection` ys)
-                                         <*> (ZipList $ Map.elems $ ys `Map.intersection` xs))
+  and (getZipList $ Sets.isSubsetOf <$> (ZipList $ Map.elems $ xs `Map.intersection` ys)
+                                    <*> (ZipList $ Map.elems $ ys `Map.intersection` xs))
 
 isProperSubsetOf :: ( Ord k
                     , Eq (c a)
