@@ -13,12 +13,13 @@
 
 module Data.Set.Ordered.Unique.With where
 
-import Prelude (Show, String, Eq, Ord, Bool, Int, Maybe, fmap, not, fst, snd, zip, (.), ($), foldr)
+import Prelude ( Show, String, Eq, Ord, Bool, Int, Maybe
+               , fmap, not, fst, snd, zip, (.), ($), foldr)
 import qualified Data.Map as Map
 import qualified Data.List as List
 import Data.Maybe (isJust)
 import qualified Data.Foldable as Fold
-import Data.Functor.Invariant
+--import Data.Functor.Invariant
 import Control.Applicative ((<$>))
 import Data.Monoid (Monoid)
 
@@ -26,8 +27,8 @@ import Data.Monoid (Monoid)
 newtype SetWith k a = SetWith {unSetWith :: (a -> k, Map.Map k a)}
   deriving (Monoid)
 
-instance Invariant (SetWith k) where
-  invmap = map
+--instance Invariant (SetWith k) where
+--  invmap = map
 
 instance Fold.Foldable (SetWith k) where
   foldr = Data.Set.Ordered.Unique.With.foldr
@@ -115,7 +116,7 @@ splitMember :: Ord k => a -> SetWith k a -> (SetWith k a, Bool, SetWith k a)
 splitMember x (SetWith (f,xs)) = let (l,b,r) = Map.splitLookup (f x) xs
                                  in (SetWith (f,l), isJust b, SetWith (f,r))
 
-splitRoot :: Ord k => SetWith k a -> [SetWith k a]
+splitRoot :: SetWith k a -> [SetWith k a]
 splitRoot (SetWith (f,xs)) = let xss = Map.splitRoot xs
                              in fmap (\a -> SetWith (f,a)) xss
 

@@ -29,7 +29,7 @@ Library
                       , commutative >= 0.0.1.4
                       , composition
                       , contravariant
-                      , invariant
+--                      , invariant
                       , witherable
                       , keys
                       , semigroups
@@ -42,54 +42,26 @@ Library
 Test-Suite spec
   Type:                 exitcode-stdio-1.0
   Default-Language:     Haskell2010
-  Hs-Source-Dirs:       src
-                      , test
+  Hs-Source-Dirs:       test
   Ghc-Options:          -Wall -threaded
   Main-Is:              Main.hs
   Other-Modules:        Data.SetSpec
-                        Data.Set.Class
-                        Data.Set.Ordered.Many
-                        Data.Set.Ordered.Many.With
-                        Data.Set.Ordered.Unique.Finite
-                        Data.Set.Ordered.Unique.With
-                        Data.Set.Unordered.Many
-                        Data.Set.Unordered.Unique
   Build-Depends:        base
+                      , sets
                       , tasty
                       , tasty-quickcheck
                       , tasty-hunit
                       , QuickCheck
                       , quickcheck-instances
-                      , containers
-                      , unordered-containers
-                      , hashable
-                      , commutative
-                      , composition
-                      , contravariant
-                      , semigroups
-                      , semigroupoids
-                      , keys
-                      , invariant
-                      , witherable
-                      , mtl
-                      , transformers
-                      , transformers-base
 
 
 Benchmark bench
   Type:                 exitcode-stdio-1.0
   Default-Language:     Haskell2010
-  Hs-Source-Dirs:       src
-                      , bench
+  Hs-Source-Dirs:       bench
   Ghc-Options:          -Wall -threaded
   Main-Is:              Profile.hs
-  Other-Modules:        Data.Set.Class
-                        Data.Set.Ordered.Many
-                        Data.Set.Ordered.Unique.Finite
-                        Data.Set.Ordered.Unique.With
-                        Data.Set.Unordered.Many
-                        Data.Set.Unordered.Unique
-                        Data.Set.Data
+  Other-Modules:        Data.Set.Data
                         Data.Map.Data
                         Data.IntSet.Data
                         Data.IntMap.Data
@@ -97,21 +69,7 @@ Benchmark bench
                         Data.Set.Unordered.Many.Data
                         Data.Set.Unordered.Unique.Data
   Build-Depends:        base
-                      , QuickCheck
-                      , containers
-                      , unordered-containers
-                      , hashable
-                      , commutative
-                      , composition
-                      , contravariant
-                      , invariant
-                      , witherable
-                      , semigroups
-                      , semigroupoids
-                      , keys
-                      , mtl
-                      , transformers
-                      , transformers-base
+                      , sets
                       , criterion
 
 Source-Repository head

@@ -16,7 +16,7 @@ newtype FiniteSet a = FiniteSet
 -- * Query
 
 -- | /O(1)/
-null :: Eq a => FiniteSet a -> Bool
+null :: FiniteSet a -> Bool
 null (FiniteSet (_,xs)) = Set.null xs
 
 -- | /O(1)/

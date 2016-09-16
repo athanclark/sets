@@ -18,15 +18,15 @@ import qualified Data.Witherable as Wither
 
 import Data.Monoid
 import Data.Maybe (isJust)
-import Data.Functor.Invariant
+--import Data.Functor.Invariant
 import Data.Foldable as Fold hiding (and)
 import Control.Applicative hiding (empty)
 
 
 newtype SetsWith k c a = SetsWith {unSetsWith :: (a -> k, Map.Map k (c a))}
 
-instance Functor c => Invariant (SetsWith k c) where
-  invmap = map
+--instance Functor c => Invariant (SetsWith k c) where
+--  invmap = map
 
 instance Fold.Foldable c => Fold.Foldable (SetsWith k c) where
   foldr = Data.Set.Ordered.Many.With.foldr

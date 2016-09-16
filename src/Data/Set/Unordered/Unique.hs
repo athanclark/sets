@@ -16,7 +16,6 @@ import Data.List as List
 import Data.Maybe (fromJust, isJust, mapMaybe)
 import Control.Monad.State
 import Control.Monad.Base
-import Control.Applicative
 
 import Test.QuickCheck
 
@@ -63,7 +62,7 @@ instance (Arbitrary a, Eq a) => Arbitrary (UUSet a) where
 -- * Query
 
 -- | /O(1)/
-null :: Eq a => UUSet a -> Bool
+null :: UUSet a -> Bool
 null (UUSet xs) = List.null xs
 
 -- | /O(n)/

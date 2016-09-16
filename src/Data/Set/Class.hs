@@ -23,7 +23,6 @@ import Data.Foldable as Fold
 import Data.Traversable
 import Data.Semigroup.Foldable as Fold1
 import Data.Semigroup
-import Data.Monoid as Monoid
 import Data.Key
 import Data.Commutative as Comm
 import Data.Composition
@@ -148,7 +147,8 @@ newtype XUnion a = XUnion {unXUnion :: a}
 instance (HasUnion s, HasIntersection s, HasDifference s) => HasXUnion s where
   xunion x y = union x y `difference` intersection x y
 
-instance (HasXUnion s, HasUnion s, HasIntersection s, HasDifference s) => Commutative (XUnion s) where
+instance ( HasXUnion s, HasUnion s
+         , HasIntersection s, HasDifference s) => Commutative (XUnion s) where
   commute = xunion
 
 instance (HasXUnion s, HasEmpty s, HasUnion s, HasIntersection s, HasDifference s) => Monoid (XUnion s) where

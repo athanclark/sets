@@ -8,8 +8,7 @@ module Data.Set.Unordered.Many where
 import Data.Mergeable
 import Data.List as List hiding (delete)
 import qualified Data.List as List
-import Data.Maybe (fromJust, isJust, mapMaybe)
-import Control.Applicative
+import Data.Maybe (mapMaybe)
 import Control.Monad
 
 import Test.QuickCheck
@@ -51,7 +50,7 @@ instance Arbitrary a => Arbitrary (UMSet a) where
 -- * Query
 
 -- | /O(1)/
-null :: Eq a => UMSet a -> Bool
+null :: UMSet a -> Bool
 null (UMSet xs) = List.null xs
 
 -- | /O(n)/
@@ -68,11 +67,11 @@ notMember x = not . member x
 
 -- | /O(n)/
 lookup :: Eq a => a -> UMSet a -> Maybe a
-lookup x (UMSet xs) = lookup' x xs
+lookup x (UMSet xs) = lookup' xs
   where
-    lookup' _ [] = Nothing
-    lookup' x (y:ys) | x == y    = Just y
-                     | otherwise = lookup' x ys
+    lookup' [] = Nothing
+    lookup' (y:ys) | x == y    = Just y
+                   | otherwise = lookup' ys
 
 -- | /O(n*m)/
 isSubsetOf :: Eq a => UMSet a -> UMSet a -> Bool
@@ -112,7 +111,7 @@ delete x (UMSet xs) = UMSet $ List.filter (== x) xs
 -- * Combine
 
 -- | /O(n)/
-union :: Eq a => UMSet a -> UMSet a -> UMSet a
+union :: UMSet a -> UMSet a -> UMSet a
 union (UMSet xs) (UMSet ys) = UMSet $ xs ++ ys
 
 -- | /O(n*m)/
