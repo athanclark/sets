@@ -1,11 +1,11 @@
 Name:                   sets
-Version:                0.0.5
+Version:                0.0.5.1
 Author:                 Athan Clark <athan.clark@gmail.com>
 Maintainer:             Athan Clark <athan.clark@gmail.com>
 License:                MIT
 License-File:           LICENSE
-Synopsis:               Various set implementations in Haskell.
-Description:            This also includes overloaded functions for common set operations. See @Data.Set.Class@.
+Synopsis:               Ducktyped set interface for Haskell containers.
+Description:            Includes overloaded functions for common set operations. See @Data.Set.Class@.
 Cabal-Version:          >= 1.10
 Build-Type:             Simple
 Category:               Data, Math
