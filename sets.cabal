@@ -74,6 +74,10 @@ Benchmark bench
                         Data.Set.Unordered.Unique.Data
   Build-Depends:        base
                       , sets
+                      , containers
+                      , unordered-containers
+                      , commutative
+                      , contravariant
                       , criterion
 
 Source-Repository head
