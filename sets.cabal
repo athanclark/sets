@@ -53,6 +53,10 @@ Test-Suite spec
                       , tasty-hunit
                       , QuickCheck
                       , quickcheck-instances
+                      , containers
+                      , unordered-containers
+                      , contravariant
+                      , commutative
 
 
 Benchmark bench
