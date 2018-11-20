@@ -7,12 +7,12 @@
   , MultiParamTypeClasses
   , OverloadedLists
   , TupleSections
+  , FlexibleInstances
   #-}
 
 module Data.Set.Ordered.Many where
 
 import Data.Mergeable
-import Data.List as List hiding (delete)
 import Data.Foldable as Fold
 import Data.Traversable
 import Data.Maybe (fromJust, isJust, mapMaybe)
@@ -24,6 +24,7 @@ import Control.Monad.State
 import Control.Monad.Base
 
 import Test.QuickCheck
+import System.IO.Unsafe (unsafePerformIO)
 
 
 -- | Ordered sets with duplicate elements.
@@ -44,18 +45,20 @@ instance Mergeable OMSet where
 instance MonadBase Gen Gen where
   liftBase = id
 
-instance (Arbitrary a, Ord a) => Arbitrary (OMSet a) where
+instance Arbitrary (OMSet Int) where -- (Arbitrary a, Ord a, Show a) => Arbitrary (OMSet a) where
   arbitrary = OMSet <$> sized go
     where
-      go s = evalStateT (Vector.replicateM s go') Nothing
-      go' :: ( Ord a
-             , Arbitrary a
-             ) => StateT (Maybe a) Gen a
-      go' = do
-        mprev <- get
-        x <- liftBase $ maybe arbitrary (\p -> arbitrary `suchThat` (>= p)) mprev
-        put $ Just x
-        return x
+      go s = let xs = [1..s]
+             in  pure xs -- unsafePerformIO (print xs) `seq` (pure xs)
+      -- go s = do x <- arbitrary
+      --           xs <- go' s x
+      --           let xss = Vector.cons x xs
+      --           unsafePerformIO (print xss) `seq` (pure xss)
+      -- go' :: (Ord a, Arbitrary a) => Int -> a -> Gen (Vector a)
+      -- go' 0 _ = pure []
+      -- go' s' prev = do
+      --   next <- arbitrary `suchThat` (>= prev)
+      --   (Vector.cons next) <$> go' (s' - 1) next
 
 -- * Operators
 
@@ -64,84 +67,52 @@ instance (Arbitrary a, Ord a) => Arbitrary (OMSet a) where
 
 -- * Query
 
--- | /O(1)/
 null :: Eq a => OMSet a -> Bool
 null (OMSet xs) = Vector.null xs
 
--- | /O(n)/
 size :: OMSet a -> Int
 size (OMSet xs) = Vector.length xs
 
--- | /O(n)/
 member :: Eq a => a -> OMSet a -> Bool
 member x (OMSet xs) = Vector.elem x xs
 
--- | /O(n)/
 notMember :: Eq a => a -> OMSet a -> Bool
 notMember x = not . member x
 
--- | /O(n)/
 lookup :: Eq a => a -> OMSet a -> Maybe a
-lookup x (OMSet xs) = lookup' x xs
-  where
-    lookup' _ [] = Nothing
-    lookup' x' yss
-      | Vector.null yss = Nothing
-      | x == Vector.head yss = Just (Vector.head yss)
-      | otherwise = lookup' x' (Vector.tail yss)
+lookup x (OMSet xs) = Vector.find (== x) xs
 
--- | /O(n*m)/
 isSubsetOf :: Eq a => OMSet a -> OMSet a -> Bool
-isSubsetOf (OMSet xs) (OMSet ys) = Vector.foldr go True xs
-  where
-    go x b | Vector.elem x ys = b
-           | otherwise        = False
+isSubsetOf (OMSet xs) (OMSet ys) = Vector.all (`Vector.elem` ys) xs
 
--- | /O(n*(m^3))/
 isProperSubsetOf :: Eq a => OMSet a -> OMSet a -> Bool
-isProperSubsetOf (OMSet xs) (OMSet ys) = fst (List.foldr go (True,ys) xs)
-  where
-    go _ (False,soFar) = (False,soFar)
-    go _ (_,[]) = (False,[])
-    go x (b,soFar)
-      | Vector.elem x soFar = (b, Vector.filter (/= x) soFar)
-      | otherwise = (False, soFar)
+isProperSubsetOf xs ys = xs /= ys && isSubsetOf xs ys
 
 -- * Construction
 
 -- | /O(1)/
 empty :: OMSet a
-empty = OMSet []
+empty = OMSet Vector.empty
 
 -- | /O(1)/
 singleton :: a -> OMSet a
-singleton x = OMSet [x]
+singleton = OMSet . Vector.singleton
 
 -- | /O(n)/
 insert :: Ord a => a -> OMSet a -> OMSet a
-insert x (OMSet xs) = OMSet (insert' x xs)
-  where
-    insert' x' v
-      | Vector.null v = [x']
-      | x' <= Vector.head v = x' `Vector.cons` v
-      | otherwise = (Vector.head v) `Vector.cons` (insert' x' (Vector.tail v))
+insert x (OMSet xs) =
+  let (ps,ss) = Vector.span (<= x) xs
+  in  OMSet (ps <> Vector.singleton x <> ss)
 
 -- | /O(n)/
 delete :: Eq a => a -> OMSet a -> OMSet a
-delete x (OMSet xs) = OMSet (Vector.filter (== x) xs)
+delete x (OMSet xs) = OMSet (Vector.filter (/= x) xs)
 
 -- * Combine
 
 -- | /O(min n m)/
 union :: Ord a => OMSet a -> OMSet a -> OMSet a
-union (OMSet xs') (OMSet ys') = OMSet (go xs' ys')
-  where
-    go xss yss = case (xss Vector.!? 0, yss Vector.!? 0) of
-      (Nothing,_) -> yss
-      (_,Nothing) -> xss
-      (Just x, Just y)
-        | x == y -> Vector.cons x (go (Vector.drop 1 xss) yss)
-        | otherwise -> Vector.cons y (go xss (Vector.drop 1 yss))
+union xs ys = foldr insert xs ys
 
 -- | /O(n*m)/
 difference :: Eq a => OMSet a -> OMSet a -> OMSet a
