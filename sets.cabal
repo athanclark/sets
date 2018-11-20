@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 00fb823abbe52e3bcaf757257581350f1f2cebe651e315253703fd387c2f980e
+-- hash: 43dfe0d613b8c2ccf7c76fdb2b07db2e683eda310038bdcc33fe5108a6ce8f4f
 
 name:           sets
 version:        0.0.6
@@ -97,7 +97,7 @@ test-suite sets-test
 
 benchmark sets-bench
   type: exitcode-stdio-1.0
-  main-is: Main.hs
+  main-is: Profile.hs
   other-modules:
       Data.IntMap.Data
       Data.IntSet.Data
@@ -106,7 +106,6 @@ benchmark sets-bench
       Data.Set.Ordered.Many.Data
       Data.Set.Unordered.Many.Data
       Data.Set.Unordered.Unique.Data
-      Profile
       Paths_sets
   hs-source-dirs:
       bench
