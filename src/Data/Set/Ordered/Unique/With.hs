@@ -21,11 +21,12 @@ import Data.Maybe (isJust)
 import qualified Data.Foldable as Fold
 --import Data.Functor.Invariant
 import Control.Applicative ((<$>))
+import Data.Semigroup (Semigroup)
 import Data.Monoid (Monoid)
 
 
 newtype SetWith k a = SetWith {unSetWith :: (a -> k, Map.Map k a)}
-  deriving (Monoid)
+  deriving (Semigroup, Monoid)
 
 --instance Invariant (SetWith k) where
 --  invmap = map

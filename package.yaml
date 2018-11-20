@@ -1,0 +1,78 @@
+name:                sets
+version:             0.0.6
+github:              "athanclark/sets"
+license:             BSD3
+author:              "Athan Clark"
+maintainer:          "athan.clark@localcooking.com"
+copyright:           "2018 Athan Clark"
+category:            Data
+synopsis:            Ducktyped set interface for Haskell containers.
+
+ghc-options: -Wall
+
+extra-source-files:
+- README.md
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on Github at <https://github.com/athanclark/sets#readme>
+
+dependencies:
+  - base >= 4.11 && < 5.0
+  - bytestring
+  - composition
+  - commutative >= 0.0.1.4
+  - containers
+  - contravariant
+  - hashable
+  - keys
+  - mtl
+  - transformers
+  - transformers-base
+  - semigroups
+  - semigroupoids
+  - unordered-containers
+  - witherable
+  - QuickCheck >= 2.9.2
+
+library:
+  source-dirs: src
+
+tests:
+  sets-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -Wall
+    - -with-rtsopts=-N
+    dependencies:
+    - sets
+    - tasty
+    - tasty-quickcheck
+    - tasty-hunit
+    - QuickCheck
+    - quickcheck-instances
+    - containers
+    - unordered-containers
+    - contravariant
+    - commutative
+
+benchmarks:
+  sets-bench:
+    main:                Main.hs
+    source-dirs:         bench
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -Wall
+    - -with-rtsopts=-N
+    dependencies:
+    - sets
+    - criterion
+    - commutative
+    - contravariant
+    - unordered-containers
+    - containers

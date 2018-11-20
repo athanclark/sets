@@ -23,6 +23,7 @@ import Data.Foldable as Fold
 import Data.Traversable
 import Data.Semigroup.Foldable as Fold1
 import Data.Semigroup
+import Data.Monoid
 import Data.Key
 import Data.Commutative as Comm
 import Data.Composition
