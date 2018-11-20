@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5665c37e43604efe525aa24037fbcfd2e6c4ec54a9bc9ff34c95dd5d12526cac
+-- hash: 00fb823abbe52e3bcaf757257581350f1f2cebe651e315253703fd387c2f980e
 
 name:           sets
 version:        0.0.6
@@ -45,7 +45,7 @@ library
       QuickCheck >=2.9.2
     , base >=4.11 && <5.0
     , bytestring
-    , commutative >=0.0.1.4
+    , commutative >=0.0.2
     , composition
     , containers
     , contravariant
@@ -57,15 +57,15 @@ library
     , transformers
     , transformers-base
     , unordered-containers
+    , vector
     , witherable
   default-language: Haskell2010
 
 test-suite sets-test
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: Main.hs
   other-modules:
       Data.SetSpec
-      Main
       Paths_sets
   hs-source-dirs:
       test
@@ -91,6 +91,7 @@ test-suite sets-test
     , transformers
     , transformers-base
     , unordered-containers
+    , vector
     , witherable
   default-language: Haskell2010
 
@@ -128,5 +129,6 @@ benchmark sets-bench
     , transformers
     , transformers-base
     , unordered-containers
+    , vector
     , witherable
   default-language: Haskell2010

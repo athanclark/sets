@@ -43,6 +43,8 @@ import qualified Data.Set.Unordered.Many as UM
 import qualified Data.Set.Unordered.Unique as UU
 import qualified Data.Set.Ordered.Unique.Finite as OUF
 import qualified Data.Set.Ordered.Unique.With as SetWith
+import Data.Vector (Vector)
+import qualified Data.Vector as Vector
 
 
 
@@ -374,6 +376,23 @@ instance HasEmpty [a] where
 
 instance HasSize [a] where
   size = List.length
+
+-- Data.Vector
+instance HasSingleton a (Vector.Vector a) where
+  singleton = Vector.singleton
+
+instance HasInsert a (Vector.Vector a) where
+  insert = Vector.cons
+
+instance Eq a => HasDelete a (Vector.Vector a) where
+  delete x = Vector.filter (== x)
+
+instance HasEmpty (Vector a) where
+  empty = Vector.empty
+
+instance HasSize (Vector a) where
+  size = Vector.length
+
 
 -- Data.Sequence
 instance HasSingleton a (Seq.Seq a) where

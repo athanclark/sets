@@ -22,7 +22,7 @@ dependencies:
   - base >= 4.11 && < 5.0
   - bytestring
   - composition
-  - commutative >= 0.0.1.4
+  - commutative >= 0.0.2
   - containers
   - contravariant
   - hashable
@@ -33,6 +33,7 @@ dependencies:
   - semigroups
   - semigroupoids
   - unordered-containers
+  - vector
   - witherable
   - QuickCheck >= 2.9.2
 
@@ -41,7 +42,7 @@ library:
 
 tests:
   sets-test:
-    main:                Spec.hs
+    main:                Main.hs
     source-dirs:         test
     ghc-options:
     - -threaded
