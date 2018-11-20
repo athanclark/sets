@@ -45,20 +45,21 @@ instance Mergeable OMSet where
 instance MonadBase Gen Gen where
   liftBase = id
 
-instance Arbitrary (OMSet Int) where -- (Arbitrary a, Ord a, Show a) => Arbitrary (OMSet a) where
+instance (Arbitrary a, Ord a, Show a) => Arbitrary (OMSet a) where
   arbitrary = OMSet <$> sized go
     where
-      go s = let xs = [1..s]
-             in  pure xs -- unsafePerformIO (print xs) `seq` (pure xs)
-      -- go s = do x <- arbitrary
-      --           xs <- go' s x
-      --           let xss = Vector.cons x xs
-      --           unsafePerformIO (print xss) `seq` (pure xss)
-      -- go' :: (Ord a, Arbitrary a) => Int -> a -> Gen (Vector a)
-      -- go' 0 _ = pure []
-      -- go' s' prev = do
-      --   next <- arbitrary `suchThat` (>= prev)
-      --   (Vector.cons next) <$> go' (s' - 1) next
+      -- go s = let xs = [1..s]
+      --        in  pure xs -- unsafePerformIO (print xs) `seq` (pure xs)
+      go s = do x <- arbitrary
+                xs <- go' s x
+                let xss = Vector.cons x xs
+                pure xss
+                -- unsafePerformIO (print xss) `seq` (pure xss)
+      go' :: (Ord a, Arbitrary a) => Int -> a -> Gen (Vector a)
+      go' 0 _ = pure []
+      go' s' prev = do
+        next <- arbitrary `suchThat` (>= prev)
+        (Vector.cons next) <$> go' (s' - 1) next
 
 -- * Operators
 
