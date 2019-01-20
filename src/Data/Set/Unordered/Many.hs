@@ -106,7 +106,7 @@ insert x (UMSet xs) = UMSet $ x:xs
 
 -- | /O(n)/
 delete :: Eq a => a -> UMSet a -> UMSet a
-delete x (UMSet xs) = UMSet $ List.filter (== x) xs
+delete x (UMSet xs) = UMSet $ List.filter (/= x) xs
 
 -- * Combine
 

@@ -1,11 +1,13 @@
--- This file has been generated from package.yaml by hpack version 0.21.2.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 46203b1d42943b7cc3f3615bba2e8231d3fee48aead51c177c482f337836f537
+-- hash: 00fb823abbe52e3bcaf757257581350f1f2cebe651e315253703fd387c2f980e
 
 name:           sets
-version:        0.0.6.1
+version:        0.0.6
 synopsis:       Ducktyped set interface for Haskell containers.
 description:    Please see the README on Github at <https://github.com/athanclark/sets#readme>
 category:       Data
@@ -17,8 +19,6 @@ copyright:      2018 Athan Clark
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
-
 extra-source-files:
     README.md
 
