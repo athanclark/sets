@@ -63,7 +63,7 @@ tests:
 
 benchmarks:
   sets-bench:
-    main:                Main.hs
+    main:                Profile.hs
     source-dirs:         bench
     ghc-options:
     - -threaded

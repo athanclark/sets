@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 46203b1d42943b7cc3f3615bba2e8231d3fee48aead51c177c482f337836f537
+-- hash: 9b097802837c1541d33b7338721f7e72c397c26e7eb80b8148a1a0299dac9450
 
 name:           sets
 version:        0.0.6.1
@@ -97,7 +97,7 @@ test-suite sets-test
 
 benchmark sets-bench
   type: exitcode-stdio-1.0
-  main-is: Main.hs
+  main-is: Profile.hs
   other-modules:
       Data.IntMap.Data
       Data.IntSet.Data
@@ -106,7 +106,6 @@ benchmark sets-bench
       Data.Set.Ordered.Many.Data
       Data.Set.Unordered.Many.Data
       Data.Set.Unordered.Unique.Data
-      Profile
       Paths_sets
   hs-source-dirs:
       bench
