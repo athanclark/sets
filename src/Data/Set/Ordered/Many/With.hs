@@ -14,6 +14,7 @@ import qualified Data.Set.Class as Sets
 import qualified Data.Set.Ordered.Many as OM
 import qualified Data.Set.Ordered.Unique.With as OU
 import qualified Data.Map as Map
+import qualified Data.Map.Internal.Debug as MapDebug
 import qualified Data.Witherable as Wither
 
 import Data.Monoid
@@ -272,7 +273,7 @@ foldl' f acc (SetsWith (_,xs)) = Map.foldl' go acc xs
 -- -- ** Legacy Fold
 
 fold :: Fold.Foldable c => (a -> b -> b) -> b -> SetsWith k c a -> b
-fold f acc (SetsWith (_,xs)) = Map.fold go acc xs
+fold f acc (SetsWith (_,xs)) = Map.foldr go acc xs
   where
     go cs acc' = Fold.foldr f acc' cs
 
@@ -341,7 +342,7 @@ fromDistinctAscList f xs = SetsWith (f, Map.fromDistinctAscList $ (f <$> xs) `zi
 -- -- * Debugging
 
 showTree :: (Show k, Show (c a)) => SetsWith k c a -> String
-showTree (SetsWith (_,xs)) = Map.showTree xs
+showTree (SetsWith (_,xs)) = MapDebug.showTree xs
 
 showTreeWith :: (k -> c a -> String) -> Bool -> Bool -> SetsWith k c a -> String
-showTreeWith f a b (SetsWith (_,xs)) = Map.showTreeWith f a b xs
+showTreeWith f a b (SetsWith (_,xs)) = MapDebug.showTreeWith f a b xs

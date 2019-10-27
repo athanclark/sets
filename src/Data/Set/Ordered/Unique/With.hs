@@ -16,6 +16,7 @@ module Data.Set.Ordered.Unique.With where
 import Prelude ( Show, String, Eq, Ord, Bool, Int, Maybe
                , fmap, not, fst, snd, zip, (.), ($), foldr)
 import qualified Data.Map as Map
+import qualified Data.Map.Internal.Debug as MapDebug
 import qualified Data.List as List
 import Data.Maybe (isJust)
 import qualified Data.Foldable as Fold
@@ -162,7 +163,7 @@ foldl' f acc (SetWith (_,xs)) = Map.foldl' f acc xs
 -- ** Legacy Fold
 
 fold :: (a -> b -> b) -> b -> SetWith k a -> b
-fold f acc (SetWith (_,xs)) = Map.fold f acc xs
+fold f acc (SetWith (_,xs)) = Map.foldr f acc xs
 
 -- * Min/Max
 
@@ -220,7 +221,7 @@ fromDistinctAscList f xs = SetWith (f, Map.fromDistinctAscList $ (f <$> xs) `zip
 -- * Debugging
 
 showTree :: (Show k, Show a) => SetWith k a -> String
-showTree (SetWith (_,xs)) = Map.showTree xs
+showTree (SetWith (_,xs)) = MapDebug.showTree xs
 
 showTreeWith :: (k -> a -> String) -> Bool -> Bool -> SetWith k a -> String
-showTreeWith f a b (SetWith (_,xs)) = Map.showTreeWith f a b xs
+showTreeWith f a b (SetWith (_,xs)) = MapDebug.showTreeWith f a b xs
