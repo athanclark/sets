@@ -1,9 +1,9 @@
 name:                sets
-version:             0.0.6.1
+version:             0.0.6.2
 github:              "athanclark/sets"
 license:             BSD3
 author:              "Athan Clark"
-maintainer:          "athan.clark@localcooking.com"
+maintainer:          "athan.clark@gmail.com"
 copyright:           "2018 Athan Clark"
 category:            Data
 synopsis:            Ducktyped set interface for Haskell containers.

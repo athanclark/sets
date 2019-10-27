@@ -4,17 +4,17 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 89d51709e5e2a76b920458dcb5ba5183c5b41f6deedaca73e512468df2e94bde
+-- hash: a07ff46d2ef6defe85f666d93492fcc0cba3c4ab46d08ee7d34dcee21a1362de
 
 name:           sets
-version:        0.0.6.1
+version:        0.0.6.2
 synopsis:       Ducktyped set interface for Haskell containers.
 description:    Please see the README on Github at <https://github.com/athanclark/sets#readme>
 category:       Data
 homepage:       https://github.com/athanclark/sets#readme
 bug-reports:    https://github.com/athanclark/sets/issues
 author:         Athan Clark
-maintainer:     athan.clark@localcooking.com
+maintainer:     athan.clark@gmail.com
 copyright:      2018 Athan Clark
 license:        BSD3
 license-file:   LICENSE
